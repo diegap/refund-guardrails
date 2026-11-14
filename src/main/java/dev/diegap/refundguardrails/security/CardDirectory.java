@@ -28,4 +28,14 @@ public class CardDirectory {
 			.map((account) -> account.card().summary());
 	}
 
+	/**
+	 * Resolves a vault token to an account id without exposing the card number.
+	 * The assistant uses this to bind a conversation to an account.
+	 */
+	public Optional<String> accountIdFor(String sessionId, String token) {
+		return this.vault.digitsFor(sessionId, token)
+			.flatMap(this.demoData::accountForPan)
+			.map((account) -> account.id());
+	}
+
 }

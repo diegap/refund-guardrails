@@ -27,4 +27,9 @@ public class RefundLedger {
 		return refundsFor(chargeId).stream().mapToLong(Refund::amountCents).sum();
 	}
 
+	/** Clears the in-memory ledger; used to isolate tests and eval cases. */
+	public void clear() {
+		this.refunds.clear();
+	}
+
 }

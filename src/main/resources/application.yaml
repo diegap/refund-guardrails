@@ -6,6 +6,16 @@ spring:
       # Scripted-provider mode needs no real credentials. Set OPENAI_API_KEY and a
       # base URL only when pointing at a real provider (untested in this lab).
       api-key: ${OPENAI_API_KEY:demo-not-a-real-key}
+    tools:
+      # Let the assistant turn a malformed tool call into a safe failure instead
+      # of feeding the exception text back to the model.
+      throw-exception-on-error: true
+    chat:
+      client:
+        tool-calling:
+          # Keep the tool loop inside the four guardrail advisors so each runs
+          # exactly once per turn. Lower orders run earlier on the way in.
+          advisor-order: 1000
 
 app:
   refund:
