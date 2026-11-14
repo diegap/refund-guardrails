@@ -22,3 +22,8 @@ app:
     # Server-side authority: neither the model nor the user can change these.
     auto-approval-cap-cents: 25000
     authorization-ttl: 2m
+  telemetry:
+    content:
+      # Opt-in. When true, prompt and completion text is exported to spans,
+      # redacted for card numbers and email addresses. Off by default.
+      enabled: false

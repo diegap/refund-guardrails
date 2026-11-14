@@ -61,7 +61,11 @@ public final class TurnContext {
 	}
 
 	public void guard(String name, GuardOutcome outcome) {
-		this.guards.add(new GuardEvaluation(name, outcome));
+		this.guards.add(new GuardEvaluation(name, outcome, null));
+	}
+
+	public void guard(String name, GuardOutcome outcome, String reason) {
+		this.guards.add(new GuardEvaluation(name, outcome, reason));
 	}
 
 	public boolean hasGuard(String name) {

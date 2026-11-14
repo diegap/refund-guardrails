@@ -4,6 +4,7 @@ import java.util.Map;
 
 import dev.diegap.refundguardrails.security.OutputRedactor;
 import dev.diegap.refundguardrails.security.RedactedText;
+import io.micrometer.observation.Observation;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.ai.chat.client.ChatClient;
@@ -31,13 +32,29 @@ public class RefundAssistantService {
 
 	private final OutputRedactor outputRedactor;
 
-	public RefundAssistantService(ChatClient refundChatClient, OutputRedactor outputRedactor) {
+	private final TurnObservation observations;
+
+	public RefundAssistantService(ChatClient refundChatClient, OutputRedactor outputRedactor,
+			TurnObservation observations) {
 		this.chatClient = refundChatClient;
 		this.outputRedactor = outputRedactor;
+		this.observations = observations;
 	}
 
 	public AssistantTurn chat(AssistantTurnRequest request) {
 		TurnContext turn = new TurnContext(request.sessionId(), request.message());
+		Observation observation = this.observations.start(request);
+		observation.start();
+		try (Observation.Scope scope = observation.openScope()) {
+			return doChat(request, turn);
+		}
+		finally {
+			this.observations.annotate(observation, turn.metadata());
+			observation.stop();
+		}
+	}
+
+	private AssistantTurn doChat(AssistantTurnRequest request, TurnContext turn) {
 		try {
 			ChatClientResponse response = this.chatClient.prompt()
 				.user(modelInput(request))

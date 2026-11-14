@@ -39,7 +39,7 @@ public class TopicScopeGuardAdvisor implements CallAdvisor {
 		String text = userMessage == null ? "" : userMessage.getText();
 
 		if (!this.scope.isInScope(text)) {
-			turn.guard(TurnContext.TOPIC_SCOPE, GuardOutcome.FAILED);
+			turn.guard(TurnContext.TOPIC_SCOPE, GuardOutcome.FAILED, "out_of_scope");
 			turn.finalReply(REFUSAL);
 			return AssistantResponses.text(REFUSAL);
 		}

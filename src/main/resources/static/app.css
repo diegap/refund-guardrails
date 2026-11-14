@@ -573,6 +573,12 @@ pre {
 	color: var(--muted);
 }
 
+.guard-reason {
+	font-family: var(--mono);
+	font-size: 0.62rem;
+	color: var(--danger);
+}
+
 .status-dot {
 	width: 8px;
 	height: 8px;

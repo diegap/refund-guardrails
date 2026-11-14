@@ -54,6 +54,7 @@
 				<li th:each="guard : ${turn.metadata.guards}">
 					<span class="status-dot" th:classappend="${guard.outcome.name() == 'PASSED' ? 'pass' : 'fail'}"></span>
 					<span class="guard-name" th:text="${guard.name}"></span>
+					<span class="guard-reason" th:if="${guard.reason != null}" th:text="${guard.reason}"></span>
 					<span class="guard-outcome" th:text="${guard.outcome}"></span>
 				</li>
 			</ul>

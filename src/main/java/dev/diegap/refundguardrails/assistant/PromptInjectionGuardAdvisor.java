@@ -44,7 +44,7 @@ public class PromptInjectionGuardAdvisor implements CallAdvisor {
 
 		Optional<String> reason = this.heuristic.detect(text);
 		if (reason.isPresent()) {
-			turn.guard(TurnContext.PROMPT_INJECTION, GuardOutcome.FAILED);
+			turn.guard(TurnContext.PROMPT_INJECTION, GuardOutcome.FAILED, reason.get());
 			turn.finalReply(REFUSAL);
 			return AssistantResponses.text(REFUSAL);
 		}
