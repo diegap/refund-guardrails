@@ -6,20 +6,19 @@ observability approach. Effort hints are rough.
 
 ## 1. Repository and build foundation
 
-- [ ] 1.1 Create an empty public repository on GitHub (no README, no license, no
+- [x] 1.1 Create an empty public repository on GitHub (no README, no license, no
   `.gitignore`), then initialize the local repository on `main` and add the
   `origin` remote. Verify `git remote -v` shows the expected SSH URL and an
   empty first push succeeds. (~15m)
-- [ ] 1.2 Generate the Spring Boot 4 / Spring AI 2.0 Gradle project (Kotlin DSL)
+- [x] 1.2 Generate the Spring Boot 4 / Spring AI 2.0 Gradle project (Kotlin DSL)
   with web, actuator, Thymeleaf, and the OpenAI starter, pinned to the current
   GA versions, and commit the wrapper (`gradlew`, `gradlew.bat`,
   `gradle/wrapper/`). Verify `./gradlew build` succeeds and
   `./gradlew bootRun` starts and serves a placeholder page. (~30m)
-- [ ] 1.3 Add repository hygiene: `.gitignore` for build output, IDE files,
-  `.env`, and the local trace database; MIT `LICENSE`; `.env.example` with
-  placeholders only. Verify `git status` stays clean after a build and no
-  credential values appear in any tracked file. (~15m)
-- [ ] 1.4 Write the README skeleton: one-line thesis, the demo-only/no-real-card-
+- [x] 1.3 Add repository hygiene: `.gitignore` for build output, IDE files,
+  `.env`, and the local trace database; MIT `LICENSE`. Verify `git status` stays
+  clean after a build and no credential values appear in any tracked file. (~15m)
+- [x] 1.4 Write the README skeleton: one-line thesis, the demo-only/no-real-card-
   data disclaimer, the quickstart command, and empty sections for the remaining
   docs. Verify the quickstart command as written starts the application. (~20m)
 - [ ] 1.5 Add a CI workflow that runs the build and tests on push and pull
@@ -69,8 +68,9 @@ observability approach. Effort hints are rough.
   network access, then complete a chat turn. Verify the test passes with network
   disabled. (~15m)
 - [ ] 3.6 Document the scripted provider and the provider-switch configuration in
-  the README, labelling real-provider use as untested. Verify the documented
-  configuration keys match the application config. (~20m)
+  the README, and add `.env.example` with placeholders only, labelling
+  real-provider use as untested. Verify the documented configuration keys match
+  the application config. (~20m)
 
 ## 4. Domain model and sensitive-data handling
 

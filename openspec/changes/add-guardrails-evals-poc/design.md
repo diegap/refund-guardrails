@@ -249,6 +249,10 @@ dev.<user>.refundguardrails
   keep a regression case; do not run the detector on tool inputs.
 - **Scope creep.** → the cut list is explicit in `tasks.md`: streaming, memory,
   RAG, containers, pages, judge evals.
+- **Initializr's Gradle generation returned HTTP 500 during setup.** → the project
+  was assembled from Initializr's Maven output (which pins Boot 4.1.2 and Spring
+  AI 2.0.1) plus a hand-written Kotlin DSL build; the wrapper is committed and
+  `./gradlew build` passes.
 - **A demo that requires no key can look unsophisticated.** → state plainly that
   responses are scripted and that the provider path is wired but untested;
   honesty is what makes the rest credible.
