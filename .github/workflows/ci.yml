@@ -38,3 +38,14 @@ jobs:
           line="JUnit suites: ${#files[@]}, tests: $tests, failures: $failures"
           echo "$line"
           echo "$line" >> "$GITHUB_STEP_SUMMARY"
+
+      - name: Run evaluation suite
+        run: ./gradlew eval --no-daemon
+
+      - name: Upload evaluation reports
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: eval-reports
+          path: build/evals/
+          if-no-files-found: error
