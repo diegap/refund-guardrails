@@ -9,6 +9,12 @@ service decides. Both properties are covered by a deterministic test suite.
 
 **Status:** weekend-scale lab, in progress. The plan lives in `openspec/`.
 
+![The demo page: a duplicate-charge refund with the raw input and the tokenized model-bound content side by side](docs/demo.png)
+
+The screenshot is reproducible with the command below and
+`http://localhost:8080/?scenario=duplicate-charge`, or by clicking **Duplicate
+charge** on the page.
+
 ## Stack
 
 - Java 25, Gradle (Kotlin DSL), Spring Boot 4.1, Spring AI 2.0

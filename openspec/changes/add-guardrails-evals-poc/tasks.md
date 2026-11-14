@@ -153,13 +153,13 @@ observability approach. Effort hints are rough.
 
 ## 7. Demo interface
 
-- [ ] 7.1 Build the single chat page with Thymeleaf and htmx, including the four
+- [x] 7.1 Build the single chat page with Thymeleaf and htmx, including the four
   scenario buttons. Verify the page renders, a turn updates without a full
   reload, and no Node build step is required. (~60m)
-- [ ] 7.2 Add the "what the model saw" panel showing raw input and redacted
+- [x] 7.2 Add the "what the model saw" panel showing raw input and redacted
   model-bound content side by side. Verify a scenario demonstrates the token in
   the panel where the raw input shows the card number. (~30m)
-- [ ] 7.3 Add a screenshot or short recording of the scenario flow to the README.
+- [x] 7.3 Add a screenshot or short recording of the scenario flow to the README.
   Verify a reader can reproduce the pictured state using the documented steps.
   (~20m)
 
