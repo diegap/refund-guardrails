@@ -1,0 +1,70 @@
+package dev.diegap.refundguardrails.domain;
+
+import java.time.Instant;
+import java.util.List;
+import java.util.Optional;
+
+import org.springframework.stereotype.Component;
+
+/**
+ * Deterministic in-memory seed. The card numbers are industry test numbers only
+ * (see {@code DocumentedTestPans} in the tests); every other value is fixed so
+ * tests and screenshots are stable.
+ */
+@Component
+public class DemoData {
+
+	public static final String CURRENCY = "USD";
+
+	private static final Instant JANUARY = Instant.parse("2026-01-05T09:00:00Z");
+
+	private static final Instant FEBRUARY = Instant.parse("2026-02-11T14:30:00Z");
+
+	private static final Instant MARCH = Instant.parse("2026-03-02T08:15:00Z");
+
+	private final List<Account> accounts = List.of(
+			new Account("acct_demo_1", "Ada Lovelace",
+					new Card("4242424242424242", "4242", "Visa")),
+			new Account("acct_demo_2", "Grace Hopper",
+					new Card("5555555555554444", "4444", "Mastercard")),
+			new Account("acct_demo_3", "Alan Turing",
+					new Card("378282246310005", "0005", "American Express")));
+
+	private final List<Charge> charges = List.of(
+			new Charge("ch_demo_0", "acct_demo_1", 4200, CURRENCY, "Pro plan, annual", JANUARY),
+			new Charge("ch_demo_1", "acct_demo_1", 4200, CURRENCY, "Pro plan, annual (duplicate)", JANUARY),
+			new Charge("ch_demo_2", "acct_demo_2", 12900, CURRENCY, "Team plan, annual", FEBRUARY),
+			new Charge("ch_demo_over_cap", "acct_demo_2", 50000, CURRENCY, "Enterprise onboarding", FEBRUARY),
+			new Charge("ch_demo_3", "acct_demo_3", 2500, CURRENCY, "Priority support", MARCH));
+
+	private final RefundLedger ledger = new RefundLedger();
+
+	public List<Account> accounts() {
+		return this.accounts;
+	}
+
+	public List<Charge> charges() {
+		return this.charges;
+	}
+
+	public List<Charge> chargesFor(String accountId) {
+		return this.charges.stream().filter((charge) -> charge.accountId().equals(accountId)).toList();
+	}
+
+	public Optional<Account> account(String accountId) {
+		return this.accounts.stream().filter((account) -> account.id().equals(accountId)).findFirst();
+	}
+
+	public Optional<Charge> charge(String chargeId) {
+		return this.charges.stream().filter((charge) -> charge.id().equals(chargeId)).findFirst();
+	}
+
+	public Optional<Account> accountForPan(String pan) {
+		return this.accounts.stream().filter((account) -> account.card().pan().equals(pan)).findFirst();
+	}
+
+	public RefundLedger ledger() {
+		return this.ledger;
+	}
+
+}
