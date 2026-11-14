@@ -86,13 +86,13 @@ observability approach. Effort hints are rough.
   session-scoped tokens before any model-bound content exists. Verify tests for
   token substitution, token reuse within a session, isolation across sessions,
   and vault loss on restart. (~45m)
-- [ ] 4.4 Restrict card lookups to a last-four projection and ensure tool results
+- [x] 4.4 Restrict card lookups to a last-four projection and ensure tool results
   never carry a full number. Verify a test asserts that no tool result contains
   more than four consecutive digits of any seeded card number. (~30m)
 - [x] 4.5 Implement output scanning and redaction for card numbers and email
   addresses before delivery. Verify tests for a leaking model output and for an
   unchanged clean output. (~30m)
-- [ ] 4.6 Include redaction metadata in each turn result: stage, token, and
+- [x] 4.6 Include redaction metadata in each turn result: stage, token, and
   visible last four. Verify the turn endpoint returns it for a turn containing a
   card number. (~20m)
 - [x] 4.7 Document the vault design and its limitations (in-memory, per session,
@@ -116,38 +116,38 @@ observability approach. Effort hints are rough.
 - [x] 5.4 Implement the denial path: reason category without sensitive detail,
   no token, and an escalation offer. Verify a test asserts the refusal text,
   absence of a token, and presence of the escalation option. (~20m)
-- [ ] 5.5 Add the defense-in-depth test: an adversarial turn that bypasses the
+- [x] 5.5 Add the defense-in-depth test: an adversarial turn that bypasses the
   injection heuristic still cannot produce an over-cap refund. Verify the test
   fails if token validation is removed. (~30m)
 - [x] 5.6 Implement double-refund prevention for fully refunded charges. Verify a
   test rejects a second refund on the same charge. (~20m)
-- [ ] 5.7 Document the "model proposes, policy authorizes" flow with a diagram in
+- [x] 5.7 Document the "model proposes, policy authorizes" flow with a diagram in
   the README. Verify the diagram matches the implemented tool and token flow.
   (~20m)
 
 ## 6. Assistant and guardrails
 
-- [ ] 6.1 Build the chat service around `ChatClient` with an explicit advisor
+- [x] 6.1 Build the chat service around `ChatClient` with an explicit advisor
   order: redaction, injection, scope on input; scanning on output. Verify an
   order test proves redaction runs before any content can be observed or
   forwarded. (~45m)
-- [ ] 6.2 Implement the prompt-injection heuristic and the scope guard. Verify
+- [x] 6.2 Implement the prompt-injection heuristic and the scope guard. Verify
   tests for a refused injection with no tool executed, a refused off-topic
   request, and a legitimate request passing every guard. (~45m)
-- [ ] 6.3 Define exactly four tools — account lookup, charge lookup, refund
+- [x] 6.3 Define exactly four tools — account lookup, charge lookup, refund
   issuance, human escalation — with schemas the model can call. Verify a test
   asserts the declared tool set and that an unknown tool cannot be invoked.
   (~45m)
-- [ ] 6.4 Return per-turn metadata covering guards evaluated, tools invoked, and
+- [x] 6.4 Return per-turn metadata covering guards evaluated, tools invoked, and
   redactions applied, and expose the model-bound content for the interface.
   Verify a test asserts metadata and redacted model input for a turn. (~30m)
-- [ ] 6.5 Implement safe failure handling for provider and tool errors. Verify a
+- [x] 6.5 Implement safe failure handling for provider and tool errors. Verify a
   test asserts a safe user message, no stack trace, and a failure category in
   metadata. (~20m)
-- [ ] 6.6 Wire the four named scenarios to deterministic fixtures. Verify one
+- [x] 6.6 Wire the four named scenarios to deterministic fixtures. Verify one
   test per scenario asserting its intended outcome, and confirm the
   policy-override scenario demonstrates a guard miss contained by policy. (~45m)
-- [ ] 6.7 Document the guardrail layers and the defense-in-depth rationale in the
+- [x] 6.7 Document the guardrail layers and the defense-in-depth rationale in the
   README. Verify the documented behavior names the guard that is intentionally
   imperfect and why that is safe. (~20m)
 
