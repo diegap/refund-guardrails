@@ -1,4 +1,4 @@
-package dev.diegap.refundguardrails.assistant;
+package dev.diegap.refundguardrails.ai;
 
 /**
  * The result of a refund request. A denial carries a category and a safe
@@ -7,12 +7,12 @@ package dev.diegap.refundguardrails.assistant;
 public record RefundToolResult(String status, String refundId, String chargeId, long amountCents, String reason,
 		String message, boolean escalationOffered) {
 
-	static RefundToolResult approved(String refundId, String chargeId, long amountCents) {
+	public static RefundToolResult approved(String refundId, String chargeId, long amountCents) {
 		return new RefundToolResult("approved", refundId, chargeId, amountCents, null,
 				"The refund was approved and recorded.", false);
 	}
 
-	static RefundToolResult denied(String chargeId, long amountCents, String reason, String message) {
+	public static RefundToolResult denied(String chargeId, long amountCents, String reason, String message) {
 		return new RefundToolResult("denied", null, chargeId, amountCents, reason, message, true);
 	}
 

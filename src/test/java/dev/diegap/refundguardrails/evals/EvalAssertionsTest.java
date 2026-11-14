@@ -6,7 +6,7 @@ import java.util.List;
 import dev.diegap.refundguardrails.assistant.AssistantTurn;
 import dev.diegap.refundguardrails.assistant.FailureCategory;
 import dev.diegap.refundguardrails.assistant.GuardEvaluation;
-import dev.diegap.refundguardrails.assistant.PromptInjectionGuardAdvisor;
+import dev.diegap.refundguardrails.ai.PromptInjectionGuardAdvisor;
 import dev.diegap.refundguardrails.assistant.TurnMetadata;
 import dev.diegap.refundguardrails.scripted.ScriptedRequestRecord;
 import dev.diegap.refundguardrails.security.PanDetector;

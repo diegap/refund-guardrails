@@ -1,35 +1,22 @@
 package dev.diegap.refundguardrails.domain;
 
 import java.util.List;
-import java.util.concurrent.CopyOnWriteArrayList;
 
 /**
- * In-memory refund ledger. Group 5 adds enforcement; the domain only records and
- * totals refunds here.
+ * Records refunds and reports how much has already been refunded per charge.
+ * The in-memory implementation lives outside the domain.
  */
-public class RefundLedger {
+public interface RefundLedger {
 
-	private final List<Refund> refunds = new CopyOnWriteArrayList<>();
+	void record(Refund refund);
 
-	public void record(Refund refund) {
-		this.refunds.add(refund);
-	}
+	List<Refund> refunds();
 
-	public List<Refund> refunds() {
-		return List.copyOf(this.refunds);
-	}
+	List<Refund> refundsFor(String chargeId);
 
-	public List<Refund> refundsFor(String chargeId) {
-		return this.refunds.stream().filter((refund) -> refund.chargeId().equals(chargeId)).toList();
-	}
+	long refundedAmountCents(String chargeId);
 
-	public long refundedAmountCents(String chargeId) {
-		return refundsFor(chargeId).stream().mapToLong(Refund::amountCents).sum();
-	}
-
-	/** Clears the in-memory ledger; used to isolate tests and eval cases. */
-	public void clear() {
-		this.refunds.clear();
-	}
+	/** Clears the ledger; used to isolate tests and eval cases. */
+	void clear();
 
 }

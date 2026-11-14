@@ -9,7 +9,11 @@ import java.net.http.HttpResponse;
 import java.util.List;
 import java.util.Map;
 
-import dev.diegap.refundguardrails.domain.DemoData;
+import dev.diegap.refundguardrails.ai.AccountView;
+import dev.diegap.refundguardrails.ai.ChargeView;
+import dev.diegap.refundguardrails.ai.RefundTools;
+import dev.diegap.refundguardrails.assistant.port.in.RefundAssistant;
+import dev.diegap.refundguardrails.domain.RefundLedger;
 import dev.diegap.refundguardrails.policy.AuthorizationTokens;
 import dev.diegap.refundguardrails.policy.DenialReason;
 import dev.diegap.refundguardrails.policy.RefundOutcome;
@@ -55,13 +59,13 @@ class RefundAssistantIntegrationTest {
 	private int port;
 
 	@Autowired
-	private RefundAssistantService service;
+	private RefundAssistant service;
 
 	@Autowired
 	private RefundTools tools;
 
 	@Autowired
-	private DemoData data;
+	private RefundLedger ledger;
 
 	@Autowired
 	private EscalationQueue escalations;
@@ -86,7 +90,7 @@ class RefundAssistantIntegrationTest {
 	@BeforeEach
 	void resetState() {
 		this.capture.clear();
-		this.data.ledger().clear();
+		this.ledger.clear();
 		this.escalations.clear();
 	}
 
@@ -98,7 +102,7 @@ class RefundAssistantIntegrationTest {
 				"duplicate-charge");
 
 		assertThat(turn.reply()).contains("refund");
-		assertThat(this.data.ledger().refunds()).singleElement().satisfies((refund) -> {
+		assertThat(this.ledger.refunds()).singleElement().satisfies((refund) -> {
 			assertThat(refund.chargeId()).isEqualTo("ch_demo_1");
 			assertThat(refund.amountCents()).isEqualTo(4200);
 		});
@@ -136,7 +140,7 @@ class RefundAssistantIntegrationTest {
 						+ MASTERCARD_FORMATTED + ".",
 				"over-cap-refund");
 
-		assertThat(this.data.ledger().refunds()).isEmpty();
+		assertThat(this.ledger.refunds()).isEmpty();
 		assertThat(turn.metadata().toolsInvoked()).contains("issue_refund");
 		assertThat(turn.reply()).contains("automatic refund limit").contains("escalate");
 
@@ -159,7 +163,7 @@ class RefundAssistantIntegrationTest {
 			.filteredOn((guard) -> guard.name().equals(TurnContext.PROMPT_INJECTION))
 			.singleElement()
 			.satisfies((guard) -> assertThat(guard.outcome()).isEqualTo(GuardOutcome.PASSED));
-		assertThat(this.data.ledger().refunds()).isEmpty();
+		assertThat(this.ledger.refunds()).isEmpty();
 		assertThat(this.authorizationTokens.outstanding()).isZero();
 		assertThat(turn.metadata().toolsInvoked()).contains("issue_refund", "escalate_to_human");
 		assertThat(turn.reply()).contains("cannot override").contains("escalated");
@@ -174,7 +178,7 @@ class RefundAssistantIntegrationTest {
 		assertThat(this.refundService.executeAuthorized("auth_forged", "s-override", "ch_demo_1", 4200))
 			.isEqualTo(new RefundOutcome.Denied(DenialReason.AUTHORIZATION_INVALID,
 					DenialReason.AUTHORIZATION_INVALID.message(), true));
-		assertThat(this.data.ledger().refunds()).isEmpty();
+		assertThat(this.ledger.refunds()).isEmpty();
 	}
 
 	@Test
@@ -230,10 +234,10 @@ class RefundAssistantIntegrationTest {
 		AssistantTurn turn = turn("s-tool-err",
 				"Please refund the duplicate charge. My card is " + VISA_FORMATTED + ".", "tool-error");
 
-		assertThat(turn.reply()).isEqualTo(RefundAssistantService.SAFE_TOOL_FAILURE);
+		assertThat(turn.reply()).isEqualTo(AssistantReplies.SAFE_TOOL_FAILURE);
 		assertThat(turn.metadata().failureCategory()).isEqualTo(FailureCategory.TOOL_ERROR);
 		assertThat(turn.reply()).doesNotContain("Exception", "not-a-number", "\tat ", "dev.diegap");
-		assertThat(this.data.ledger().refunds()).isEmpty();
+		assertThat(this.ledger.refunds()).isEmpty();
 	}
 
 	@Test
@@ -241,7 +245,7 @@ class RefundAssistantIntegrationTest {
 		AssistantTurn turn = turn("s-prov-err",
 				"Please refund my charge. My card is " + VISA_FORMATTED + ".", "provider-error");
 
-		assertThat(turn.reply()).isEqualTo(RefundAssistantService.SAFE_PROVIDER_FAILURE);
+		assertThat(turn.reply()).isEqualTo(AssistantReplies.SAFE_PROVIDER_FAILURE);
 		assertThat(turn.metadata().failureCategory()).isEqualTo(FailureCategory.PROVIDER_ERROR);
 		assertThat(turn.reply()).doesNotContain("Exception", "\tat ", "dev.diegap");
 	}
@@ -251,10 +255,10 @@ class RefundAssistantIntegrationTest {
 		AssistantTurn turn = turn("s-unknown",
 				"Please refund the duplicate charge. My card is " + VISA_FORMATTED + ".", "unknown-tool");
 
-		assertThat(turn.reply()).isEqualTo(RefundAssistantService.SAFE_TOOL_FAILURE);
+		assertThat(turn.reply()).isEqualTo(AssistantReplies.SAFE_TOOL_FAILURE);
 		assertThat(turn.metadata().failureCategory()).isEqualTo(FailureCategory.TOOL_ERROR);
 		assertThat(turn.metadata().toolsInvoked()).contains("lookup_account").doesNotContain("delete_account");
-		assertThat(this.data.ledger().refunds()).isEmpty();
+		assertThat(this.ledger.refunds()).isEmpty();
 		assertThat(this.escalations.ticketsFor("s-unknown")).isEmpty();
 	}
 

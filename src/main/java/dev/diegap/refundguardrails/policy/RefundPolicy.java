@@ -3,7 +3,8 @@ package dev.diegap.refundguardrails.policy;
 import java.util.Optional;
 
 import dev.diegap.refundguardrails.domain.Charge;
-import dev.diegap.refundguardrails.domain.DemoData;
+import dev.diegap.refundguardrails.domain.ChargeRepository;
+import dev.diegap.refundguardrails.domain.RefundLedger;
 
 /**
  * Deterministic refund policy. A model can ask; only these rules can allow.
@@ -11,16 +12,19 @@ import dev.diegap.refundguardrails.domain.DemoData;
  */
 public class RefundPolicy {
 
-	private final DemoData data;
+	private final ChargeRepository charges;
+
+	private final RefundLedger ledger;
 
 	private final long autoApprovalCapCents;
 
-	public RefundPolicy(DemoData data, RefundProperties properties) {
-		this(data, properties.autoApprovalCapCents());
+	public RefundPolicy(ChargeRepository charges, RefundLedger ledger, RefundProperties properties) {
+		this(charges, ledger, properties.autoApprovalCapCents());
 	}
 
-	RefundPolicy(DemoData data, long autoApprovalCapCents) {
-		this.data = data;
+	RefundPolicy(ChargeRepository charges, RefundLedger ledger, long autoApprovalCapCents) {
+		this.charges = charges;
+		this.ledger = ledger;
 		this.autoApprovalCapCents = autoApprovalCapCents;
 	}
 
@@ -29,7 +33,7 @@ public class RefundPolicy {
 			return PolicyDecision.denied(DenialReason.NON_POSITIVE_AMOUNT);
 		}
 
-		Optional<Charge> found = this.data.charge(intent.chargeId());
+		Optional<Charge> found = this.charges.chargeById(intent.chargeId());
 		if (found.isEmpty()) {
 			return PolicyDecision.denied(DenialReason.CHARGE_NOT_FOUND);
 		}
@@ -41,7 +45,7 @@ public class RefundPolicy {
 			return PolicyDecision.denied(DenialReason.CHARGE_NOT_REFUNDABLE);
 		}
 
-		long refundableBalance = charge.amountCents() - this.data.ledger().refundedAmountCents(charge.id());
+		long refundableBalance = charge.amountCents() - this.ledger.refundedAmountCents(charge.id());
 		if (refundableBalance <= 0) {
 			return PolicyDecision.denied(DenialReason.ALREADY_REFUNDED);
 		}

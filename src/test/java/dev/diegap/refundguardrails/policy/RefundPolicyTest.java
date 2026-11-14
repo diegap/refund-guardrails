@@ -2,8 +2,10 @@ package dev.diegap.refundguardrails.policy;
 
 import java.time.Instant;
 
-import dev.diegap.refundguardrails.domain.DemoData;
+import dev.diegap.refundguardrails.infrastructure.DemoData;
 import dev.diegap.refundguardrails.domain.Refund;
+import dev.diegap.refundguardrails.domain.RefundLedger;
+import dev.diegap.refundguardrails.infrastructure.InMemoryRefundLedger;
 import org.junit.jupiter.api.Test;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -14,7 +16,9 @@ class RefundPolicyTest {
 
 	private final DemoData data = new DemoData();
 
-	private final RefundPolicy policy = new RefundPolicy(this.data, CAP);
+	private final RefundLedger ledger = new InMemoryRefundLedger();
+
+	private final RefundPolicy policy = new RefundPolicy(this.data, this.ledger, CAP);
 
 	private RefundIntent intent(String accountId, String chargeId, long amountCents) {
 		return new RefundIntent("session-a", accountId, chargeId, amountCents);
@@ -28,7 +32,7 @@ class RefundPolicyTest {
 
 	@Test
 	void allowsARefundExactlyAtTheCap() {
-		RefundPolicy atCap = new RefundPolicy(this.data, 50000);
+		RefundPolicy atCap = new RefundPolicy(this.data, this.ledger, 50000);
 
 		assertThat(atCap.evaluate(intent("acct_demo_2", "ch_demo_over_cap", 50000)))
 			.isInstanceOf(PolicyDecision.Allowed.class);
@@ -48,7 +52,7 @@ class RefundPolicyTest {
 
 	@Test
 	void refusesOnlyTheRefundableBalanceAfterAPartialRefund() {
-		this.data.ledger().record(new Refund("rf_test_1", "ch_demo_3", 1000, Instant.EPOCH));
+		this.ledger.record(new Refund("rf_test_1", "ch_demo_3", 1000, Instant.EPOCH));
 
 		assertThat(this.policy.evaluate(intent("acct_demo_3", "ch_demo_3", 1500)))
 			.isInstanceOf(PolicyDecision.Allowed.class);
@@ -84,7 +88,7 @@ class RefundPolicyTest {
 
 	@Test
 	void refusesAFullyRefundedCharge() {
-		this.data.ledger().record(new Refund("rf_test_1", "ch_demo_1", 4200, Instant.EPOCH));
+		this.ledger.record(new Refund("rf_test_1", "ch_demo_1", 4200, Instant.EPOCH));
 
 		assertThat(this.policy.evaluate(intent("acct_demo_1", "ch_demo_1", 100)))
 			.isEqualTo(PolicyDecision.denied(DenialReason.ALREADY_REFUNDED));

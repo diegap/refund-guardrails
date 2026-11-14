@@ -4,12 +4,10 @@ import java.util.ArrayList;
 import java.util.List;
 
 import dev.diegap.refundguardrails.security.Redaction;
-import org.springframework.ai.chat.client.ChatClientRequest;
 
 /**
- * Mutable per-turn state carried through the advisor chain and into the tools via
- * {@link org.springframework.ai.chat.model.ToolContext}. It is created fresh for
- * every turn, so no state leaks between sessions.
+ * Mutable per-turn state carried through the advisor chain and into the tools. It
+ * is created fresh for every turn, so no state leaks between sessions.
  */
 public final class TurnContext {
 
@@ -42,14 +40,6 @@ public final class TurnContext {
 	public TurnContext(String sessionId, String rawInput) {
 		this.sessionId = sessionId;
 		this.rawInput = rawInput;
-	}
-
-	public static TurnContext require(ChatClientRequest request) {
-		Object value = request.context().get(KEY);
-		if (value instanceof TurnContext context) {
-			return context;
-		}
-		throw new IllegalStateException("advisors require a turn context parameter");
 	}
 
 	public String sessionId() {

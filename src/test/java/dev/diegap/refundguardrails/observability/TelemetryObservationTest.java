@@ -9,8 +9,8 @@ import java.util.concurrent.CopyOnWriteArrayList;
 import dev.diegap.refundguardrails.assistant.AssistantTurn;
 import dev.diegap.refundguardrails.assistant.AssistantTurnRequest;
 import dev.diegap.refundguardrails.assistant.EscalationQueue;
-import dev.diegap.refundguardrails.assistant.RefundAssistantService;
-import dev.diegap.refundguardrails.domain.DemoData;
+import dev.diegap.refundguardrails.assistant.port.in.RefundAssistant;
+import dev.diegap.refundguardrails.domain.RefundLedger;
 import io.micrometer.common.KeyValue;
 import io.micrometer.observation.Observation;
 import io.micrometer.observation.ObservationHandler;
@@ -49,10 +49,10 @@ class TelemetryObservationTest {
 	}
 
 	@Autowired
-	private RefundAssistantService service;
+	private RefundAssistant service;
 
 	@Autowired
-	private DemoData data;
+	private RefundLedger ledger;
 
 	@Autowired
 	private EscalationQueue escalations;
@@ -66,7 +66,7 @@ class TelemetryObservationTest {
 	@BeforeEach
 	void reset() {
 		this.handler.clear();
-		this.data.ledger().clear();
+		this.ledger.clear();
 		this.escalations.clear();
 	}
 

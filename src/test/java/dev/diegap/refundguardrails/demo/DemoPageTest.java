@@ -13,7 +13,7 @@ import java.util.Map;
 import java.util.stream.Collectors;
 
 import dev.diegap.refundguardrails.assistant.EscalationQueue;
-import dev.diegap.refundguardrails.domain.DemoData;
+import dev.diegap.refundguardrails.domain.RefundLedger;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -40,7 +40,7 @@ class DemoPageTest {
 	private int port;
 
 	@Autowired
-	private DemoData data;
+	private RefundLedger ledger;
 
 	@Autowired
 	private EscalationQueue escalations;
@@ -49,7 +49,7 @@ class DemoPageTest {
 
 	@BeforeEach
 	void resetState() {
-		this.data.ledger().clear();
+		this.ledger.clear();
 		this.escalations.clear();
 	}
 
@@ -104,7 +104,7 @@ class DemoPageTest {
 		assertThat(html).contains("[[CARD_1]]");
 		assertThat(html).contains("lookup_account", "lookup_charges", "issue_refund");
 		assertThat(html).contains("Duplicate charge");
-		assertThat(this.data.ledger().refunds()).hasSize(1);
+		assertThat(this.ledger.refunds()).hasSize(1);
 	}
 
 	@Test
@@ -117,7 +117,7 @@ class DemoPageTest {
 				"lookup_charges", "issue_refund", "Duplicate charge");
 		assertThat(html).doesNotContain("id=\"empty-state\"");
 		assertThat(html).contains("What the model saw");
-		assertThat(this.data.ledger().refunds()).hasSize(1);
+		assertThat(this.ledger.refunds()).hasSize(1);
 	}
 
 	private HttpResponse<String> get(String path) throws Exception {

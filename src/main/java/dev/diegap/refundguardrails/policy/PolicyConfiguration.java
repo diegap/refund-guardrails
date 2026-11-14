@@ -2,7 +2,8 @@ package dev.diegap.refundguardrails.policy;
 
 import java.time.Clock;
 
-import dev.diegap.refundguardrails.domain.DemoData;
+import dev.diegap.refundguardrails.domain.ChargeRepository;
+import dev.diegap.refundguardrails.domain.RefundLedger;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -17,8 +18,8 @@ class PolicyConfiguration {
 	}
 
 	@Bean
-	RefundPolicy refundPolicy(DemoData data, RefundProperties properties) {
-		return new RefundPolicy(data, properties);
+	RefundPolicy refundPolicy(ChargeRepository charges, RefundLedger ledger, RefundProperties properties) {
+		return new RefundPolicy(charges, ledger, properties);
 	}
 
 	@Bean
@@ -27,8 +28,9 @@ class PolicyConfiguration {
 	}
 
 	@Bean
-	RefundService refundService(RefundPolicy policy, AuthorizationTokens tokens, DemoData data, Clock clock) {
-		return new RefundService(policy, tokens, data, clock);
+	RefundService refundService(RefundPolicy policy, AuthorizationTokens tokens, ChargeRepository charges,
+			RefundLedger ledger, Clock clock) {
+		return new RefundService(policy, tokens, charges, ledger, clock);
 	}
 
 }

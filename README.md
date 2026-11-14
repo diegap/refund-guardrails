@@ -25,11 +25,14 @@ charge** on the page.
 
 ## Architecture
 
+### Turn flow
+
 ```mermaid
 flowchart LR
   UI["Thymeleaf + htmx<br/>/ and /api/turns"] --> SVC["RefundAssistantService"]
   SVC --> OBS["refund.turn span"]
-  SVC --> AD["Advisor chain<br/>redaction → injection → scope → output scan"]
+  SVC --> AM["AssistantModel<br/>SpringAiAssistantModel"]
+  AM --> AD["Advisor chain<br/>redaction → injection → scope → output scan"]
   AD --> LOOP["Tool-calling loop"]
   LOOP --> ACC["lookup_account"]
   LOOP --> CHG["lookup_charges"]
@@ -45,6 +48,57 @@ flowchart LR
 The browser never talks to the model. The model receives only redacted user
 text and safe tool results. A full turn is inspectable in the UI metadata, in
 the JSON reports, and in the trace.
+
+### Hexagonal layout
+
+The `assistant` package is the application core; Spring AI lives only in the
+adjacent `ai` adapter package. Driving adapters depend on the inbound port, and
+the core depends only on outbound ports it owns.
+
+```mermaid
+flowchart TB
+  subgraph driving["Driving adapters"]
+    WEB["web.AssistantController"]
+    DEMO["demo.DemoController"]
+    EVAL["evals.EvalRunner"]
+  end
+
+  subgraph core["Application core: assistant"]
+    IN["port.in<br/>RefundAssistant"]
+    SVC["RefundAssistantService"]
+    REPLY["AssistantReplies"]
+    CTX["TurnContext / TurnMetadata"]
+    POLICY["policy · security · domain"]
+    OUT["port.out<br/>AssistantModel · TurnTelemetry"]
+  end
+
+  subgraph adapters["Driven adapters"]
+    SPRING["ai.SpringAiAssistantModel<br/>ChatClient + advisors + RefundTools"]
+    MICRO["observability.MicrometerTurnTelemetry"]
+    INFRA["infrastructure<br/>in-memory stores"]
+  end
+
+  WEB --> IN
+  DEMO --> IN
+  EVAL --> IN
+  IN --> SVC
+  SVC --> OUT
+  SVC --> REPLY
+  SVC --> CTX
+  SVC --> POLICY
+  SPRING -.implements.-> OUT
+  MICRO -.implements.-> OUT
+  SPRING --> PROVIDER["Model provider<br/>scripted in mock, real by config"]
+  INFRA --> POLICY
+```
+
+| Package | Role | May depend on |
+| --- | --- | --- |
+| `domain`, `policy`, `security` | Core rules and types | Nothing framework-specific |
+| `assistant` | Application core | `domain`, `policy`, `security`, its own ports |
+| `ai` | Spring AI driven adapter | `assistant`, Spring AI |
+| `observability`, `infrastructure` | Driven adapters | Core and ports |
+| `web`, `demo`, `evals` | Driving adapters | `assistant.port.in` and core types |
 
 ## Design decisions
 

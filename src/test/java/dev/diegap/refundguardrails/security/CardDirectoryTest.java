@@ -3,7 +3,7 @@ package dev.diegap.refundguardrails.security;
 import java.util.Optional;
 
 import dev.diegap.refundguardrails.domain.CardSummary;
-import dev.diegap.refundguardrails.domain.DemoData;
+import dev.diegap.refundguardrails.infrastructure.DemoData;
 import org.junit.jupiter.api.Test;
 
 import static org.assertj.core.api.Assertions.assertThat;

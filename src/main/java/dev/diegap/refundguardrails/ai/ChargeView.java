@@ -1,4 +1,4 @@
-package dev.diegap.refundguardrails.assistant;
+package dev.diegap.refundguardrails.ai;
 
 /**
  * Model-facing charge projection. The field set is deliberately limited to what

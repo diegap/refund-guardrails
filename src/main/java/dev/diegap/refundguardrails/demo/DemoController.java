@@ -5,7 +5,7 @@ import java.util.UUID;
 
 import dev.diegap.refundguardrails.assistant.AssistantTurn;
 import dev.diegap.refundguardrails.assistant.AssistantTurnRequest;
-import dev.diegap.refundguardrails.assistant.RefundAssistantService;
+import dev.diegap.refundguardrails.assistant.port.in.RefundAssistant;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -16,9 +16,9 @@ import org.springframework.web.bind.annotation.RequestParam;
 @Controller
 class DemoController {
 
-	private final RefundAssistantService service;
+	private final RefundAssistant service;
 
-	DemoController(RefundAssistantService service) {
+	DemoController(RefundAssistant service) {
 		this.service = service;
 	}
 

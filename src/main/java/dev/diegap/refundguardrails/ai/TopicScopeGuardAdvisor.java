@@ -1,5 +1,8 @@
-package dev.diegap.refundguardrails.assistant;
+package dev.diegap.refundguardrails.ai;
 
+import dev.diegap.refundguardrails.assistant.GuardOutcome;
+import dev.diegap.refundguardrails.assistant.TopicScope;
+import dev.diegap.refundguardrails.assistant.TurnContext;
 import org.springframework.ai.chat.client.ChatClientRequest;
 import org.springframework.ai.chat.client.ChatClientResponse;
 import org.springframework.ai.chat.client.advisor.api.CallAdvisor;
@@ -34,7 +37,7 @@ public class TopicScopeGuardAdvisor implements CallAdvisor {
 
 	@Override
 	public ChatClientResponse adviseCall(ChatClientRequest request, CallAdvisorChain chain) {
-		TurnContext turn = TurnContext.require(request);
+		TurnContext turn = AdvisorContext.require(request);
 		UserMessage userMessage = request.prompt().getUserMessage();
 		String text = userMessage == null ? "" : userMessage.getText();
 

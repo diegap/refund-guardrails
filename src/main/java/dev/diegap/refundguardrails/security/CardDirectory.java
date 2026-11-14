@@ -2,8 +2,8 @@ package dev.diegap.refundguardrails.security;
 
 import java.util.Optional;
 
+import dev.diegap.refundguardrails.domain.AccountLookup;
 import dev.diegap.refundguardrails.domain.CardSummary;
-import dev.diegap.refundguardrails.domain.DemoData;
 import org.springframework.stereotype.Component;
 
 /**
@@ -15,16 +15,16 @@ public class CardDirectory {
 
 	private final PanVault vault;
 
-	private final DemoData demoData;
+	private final AccountLookup accounts;
 
-	public CardDirectory(PanVault vault, DemoData demoData) {
+	public CardDirectory(PanVault vault, AccountLookup accounts) {
 		this.vault = vault;
-		this.demoData = demoData;
+		this.accounts = accounts;
 	}
 
 	public Optional<CardSummary> resolve(String sessionId, String token) {
 		return this.vault.digitsFor(sessionId, token)
-			.flatMap(this.demoData::accountForPan)
+			.flatMap(this.accounts::accountForPan)
 			.map((account) -> account.card().summary());
 	}
 
@@ -34,7 +34,7 @@ public class CardDirectory {
 	 */
 	public Optional<String> accountIdFor(String sessionId, String token) {
 		return this.vault.digitsFor(sessionId, token)
-			.flatMap(this.demoData::accountForPan)
+			.flatMap(this.accounts::accountForPan)
 			.map((account) -> account.id());
 	}
 

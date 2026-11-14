@@ -1,4 +1,4 @@
-package dev.diegap.refundguardrails.assistant;
+package dev.diegap.refundguardrails.ai;
 
 /**
  * Explicit advisor order. Lower runs earlier on the way in and later on the way

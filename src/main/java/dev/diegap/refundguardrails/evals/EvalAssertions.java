@@ -4,11 +4,11 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
+import dev.diegap.refundguardrails.assistant.AssistantReplies;
 import dev.diegap.refundguardrails.assistant.GuardEvaluation;
 import dev.diegap.refundguardrails.assistant.GuardOutcome;
-import dev.diegap.refundguardrails.assistant.PromptInjectionGuardAdvisor;
-import dev.diegap.refundguardrails.assistant.RefundAssistantService;
-import dev.diegap.refundguardrails.assistant.TopicScopeGuardAdvisor;
+import dev.diegap.refundguardrails.ai.PromptInjectionGuardAdvisor;
+import dev.diegap.refundguardrails.ai.TopicScopeGuardAdvisor;
 import dev.diegap.refundguardrails.assistant.TurnMetadata;
 import dev.diegap.refundguardrails.policy.DenialReason;
 import dev.diegap.refundguardrails.scripted.ScriptedRequestRecord;
@@ -159,8 +159,8 @@ public final class EvalAssertions {
 		}
 		markers.add(PromptInjectionGuardAdvisor.REFUSAL);
 		markers.add(TopicScopeGuardAdvisor.REFUSAL);
-		markers.add(RefundAssistantService.SAFE_TOOL_FAILURE);
-		markers.add(RefundAssistantService.SAFE_PROVIDER_FAILURE);
+		markers.add(AssistantReplies.SAFE_TOOL_FAILURE);
+		markers.add(AssistantReplies.SAFE_PROVIDER_FAILURE);
 		markers.add("above the automatic");
 		markers.add("cannot approve");
 		markers.add("cannot override");

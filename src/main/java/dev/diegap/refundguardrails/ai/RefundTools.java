@@ -1,12 +1,18 @@
-package dev.diegap.refundguardrails.assistant;
+package dev.diegap.refundguardrails.ai;
 
 import java.util.List;
 import java.util.Optional;
 
+import dev.diegap.refundguardrails.assistant.EscalationQueue;
+import dev.diegap.refundguardrails.assistant.EscalationResult;
+import dev.diegap.refundguardrails.assistant.SessionAccounts;
+import dev.diegap.refundguardrails.assistant.TurnContext;
 import dev.diegap.refundguardrails.domain.Account;
+import dev.diegap.refundguardrails.domain.AccountRepository;
 import dev.diegap.refundguardrails.domain.CardSummary;
 import dev.diegap.refundguardrails.domain.Charge;
-import dev.diegap.refundguardrails.domain.DemoData;
+import dev.diegap.refundguardrails.domain.ChargeRepository;
+import dev.diegap.refundguardrails.domain.RefundLedger;
 import dev.diegap.refundguardrails.policy.DenialReason;
 import dev.diegap.refundguardrails.policy.RefundIntent;
 import dev.diegap.refundguardrails.policy.RefundOutcome;
@@ -30,17 +36,23 @@ public class RefundTools {
 
 	private final SessionAccounts sessions;
 
-	private final DemoData data;
+	private final AccountRepository accounts;
+
+	private final ChargeRepository charges;
+
+	private final RefundLedger ledger;
 
 	private final RefundService refunds;
 
 	private final EscalationQueue escalations;
 
-	public RefundTools(CardDirectory cards, SessionAccounts sessions, DemoData data, RefundService refunds,
-			EscalationQueue escalations) {
+	public RefundTools(CardDirectory cards, SessionAccounts sessions, AccountRepository accounts,
+			ChargeRepository charges, RefundLedger ledger, RefundService refunds, EscalationQueue escalations) {
 		this.cards = cards;
 		this.sessions = sessions;
-		this.data = data;
+		this.accounts = accounts;
+		this.charges = charges;
+		this.ledger = ledger;
 		this.refunds = refunds;
 		this.escalations = escalations;
 	}
@@ -59,7 +71,7 @@ public class RefundTools {
 		if (accountId.isEmpty() || summary.isEmpty()) {
 			return AccountView.notFound();
 		}
-		Account account = this.data.account(accountId.get()).orElseThrow();
+		Account account = this.accounts.accountById(accountId.get()).orElseThrow();
 		this.sessions.bind(turn.sessionId(), account.id());
 		return AccountView.found(account.id(), account.holderName(), summary.get().brand(), summary.get().lastFour());
 	}
@@ -74,11 +86,11 @@ public class RefundTools {
 		if (accountId.isEmpty()) {
 			return List.of();
 		}
-		Account account = this.data.account(accountId.get()).orElse(null);
+		Account account = this.accounts.accountById(accountId.get()).orElse(null);
 		if (account == null) {
 			return List.of();
 		}
-		return this.data.chargesFor(account.id())
+		return this.charges.chargesFor(account.id())
 			.stream()
 			.map((charge) -> view(charge, account))
 			.toList();
@@ -127,7 +139,7 @@ public class RefundTools {
 		if (!charge.refundable()) {
 			return "not_refundable";
 		}
-		long refunded = this.data.ledger().refundedAmountCents(charge.id());
+		long refunded = this.ledger.refundedAmountCents(charge.id());
 		if (refunded >= charge.amountCents()) {
 			return "refunded";
 		}

@@ -4,8 +4,8 @@ import java.io.IOException;
 import java.net.ServerSocket;
 
 import dev.diegap.refundguardrails.assistant.AssistantTurnRequest;
-import dev.diegap.refundguardrails.assistant.RefundAssistantService;
-import dev.diegap.refundguardrails.domain.DemoData;
+import dev.diegap.refundguardrails.assistant.port.in.RefundAssistant;
+import dev.diegap.refundguardrails.domain.RefundLedger;
 import io.micrometer.common.KeyValue;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -42,10 +42,10 @@ class TelemetryContentEnabledTest {
 	}
 
 	@Autowired
-	private RefundAssistantService service;
+	private RefundAssistant service;
 
 	@Autowired
-	private DemoData data;
+	private RefundLedger ledger;
 
 	@Autowired
 	private TelemetryObservationTest.RecordingObservationHandler handler;
@@ -53,7 +53,7 @@ class TelemetryContentEnabledTest {
 	@BeforeEach
 	void reset() {
 		this.handler.clear();
-		this.data.ledger().clear();
+		this.ledger.clear();
 	}
 
 	@Test

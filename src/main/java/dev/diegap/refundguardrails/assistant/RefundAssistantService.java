@@ -1,15 +1,14 @@
 package dev.diegap.refundguardrails.assistant;
 
-import java.util.Map;
-
+import dev.diegap.refundguardrails.assistant.port.in.RefundAssistant;
+import dev.diegap.refundguardrails.assistant.port.out.AssistantModel;
+import dev.diegap.refundguardrails.assistant.port.out.ModelFailure;
+import dev.diegap.refundguardrails.assistant.port.out.ModelReply;
+import dev.diegap.refundguardrails.assistant.port.out.TurnTelemetry;
 import dev.diegap.refundguardrails.security.OutputRedactor;
 import dev.diegap.refundguardrails.security.RedactedText;
-import io.micrometer.observation.Observation;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.ai.chat.client.ChatClient;
-import org.springframework.ai.chat.client.ChatClientResponse;
-import org.springframework.ai.tool.execution.ToolExecutionException;
 import org.springframework.stereotype.Service;
 
 /**
@@ -18,64 +17,53 @@ import org.springframework.stereotype.Service;
  * returns the metadata the interface needs.
  */
 @Service
-public class RefundAssistantService {
-
-	public static final String SAFE_PROVIDER_FAILURE = "The assistant is temporarily unavailable. "
-			+ "Please try again or ask for a human agent.";
-
-	public static final String SAFE_TOOL_FAILURE = "I couldn't complete that action. "
-			+ "Please try again or ask to speak with a human agent.";
+public class RefundAssistantService implements RefundAssistant {
 
 	private static final Logger log = LoggerFactory.getLogger(RefundAssistantService.class);
 
-	private final ChatClient chatClient;
+	private final AssistantModel model;
 
 	private final OutputRedactor outputRedactor;
 
-	private final TurnObservation observations;
+	private final TurnTelemetry telemetry;
 
-	public RefundAssistantService(ChatClient refundChatClient, OutputRedactor outputRedactor,
-			TurnObservation observations) {
-		this.chatClient = refundChatClient;
+	public RefundAssistantService(AssistantModel model, OutputRedactor outputRedactor,
+			TurnTelemetry telemetry) {
+		this.model = model;
 		this.outputRedactor = outputRedactor;
-		this.observations = observations;
+		this.telemetry = telemetry;
 	}
 
+	@Override
 	public AssistantTurn chat(AssistantTurnRequest request) {
 		TurnContext turn = new TurnContext(request.sessionId(), request.message());
-		Observation observation = this.observations.start(request);
-		observation.start();
-		try (Observation.Scope scope = observation.openScope()) {
+		TurnTelemetry.TurnScope telemetry = this.telemetry.start(request);
+		try {
 			return doChat(request, turn);
 		}
 		finally {
-			this.observations.annotate(observation, turn.metadata());
-			observation.stop();
+			telemetry.annotate(turn.metadata());
+			telemetry.close();
 		}
 	}
 
 	private AssistantTurn doChat(AssistantTurnRequest request, TurnContext turn) {
 		try {
-			ChatClientResponse response = this.chatClient.prompt()
-				.user(modelInput(request))
-				.advisors((advisors) -> advisors.param(TurnContext.KEY, turn))
-				.toolContext(Map.of(TurnContext.KEY, turn))
-				.call()
-				.chatClientResponse();
+			ModelReply response = this.model.converse(turn, modelInput(request));
 
 			String reply = turn.finalReply();
 			if (reply == null) {
-				reply = scan(turn, textOf(response));
+				reply = scan(turn, response.text());
 			}
 			return new AssistantTurn(turn.sessionId(), reply, turn.metadata());
 		}
-		catch (RuntimeException ex) {
-			if (causedByToolFailure(ex)) {
+		catch (ModelFailure ex) {
+			if (ex.kind() == ModelFailure.Kind.TOOL) {
 				log.warn("tool failure in session {}: {}", turn.sessionId(), ex.getClass().getSimpleName());
-				return safeFailure(turn, FailureCategory.TOOL_ERROR, SAFE_TOOL_FAILURE);
+				return safeFailure(turn, FailureCategory.TOOL_ERROR, AssistantReplies.SAFE_TOOL_FAILURE);
 			}
 			log.warn("provider failure in session {}: {}", turn.sessionId(), ex.getClass().getSimpleName());
-			return safeFailure(turn, FailureCategory.PROVIDER_ERROR, SAFE_PROVIDER_FAILURE);
+			return safeFailure(turn, FailureCategory.PROVIDER_ERROR, AssistantReplies.SAFE_PROVIDER_FAILURE);
 		}
 	}
 
@@ -113,30 +101,6 @@ public class RefundAssistantService {
 			turn.guard(TurnContext.OUTPUT_SCANNING, GuardOutcome.PASSED);
 		}
 		return new AssistantTurn(turn.sessionId(), safeReply, turn.metadata());
-	}
-
-	private static boolean causedByToolFailure(Throwable failure) {
-		for (Throwable current = failure; current != null; current = current.getCause()) {
-			if (current instanceof ToolExecutionException) {
-				return true;
-			}
-			if (current instanceof IllegalStateException && current.getMessage() != null
-					&& current.getMessage().toLowerCase(java.util.Locale.ROOT).contains("tool")) {
-				return true;
-			}
-			if (current.getCause() == current) {
-				break;
-			}
-		}
-		return false;
-	}
-
-	private static String textOf(ChatClientResponse response) {
-		if (response == null || response.chatResponse() == null || response.chatResponse().getResult() == null) {
-			return "";
-		}
-		String text = response.chatResponse().getResult().getOutput().getText();
-		return text == null ? "" : text;
 	}
 
 }

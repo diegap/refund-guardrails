@@ -1,8 +1,10 @@
-package dev.diegap.refundguardrails.domain;
+package dev.diegap.refundguardrails.infrastructure;
 
 import java.util.Map;
 import java.util.stream.Collectors;
 
+import dev.diegap.refundguardrails.domain.Account;
+import dev.diegap.refundguardrails.domain.Charge;
 import dev.diegap.refundguardrails.testsupport.DocumentedTestPans;
 import org.junit.jupiter.api.Test;
 
@@ -57,18 +59,6 @@ class DemoDataTest {
 		for (Account account : this.data.accounts()) {
 			assertThat(this.data.chargesFor(account.id())).as(account.id()).isNotEmpty();
 		}
-	}
-
-	@Test
-	void ledgerStartsEmptyAndTotalsRefundsPerCharge() {
-		assertThat(this.data.ledger().refunds()).isEmpty();
-		assertThat(this.data.ledger().refundedAmountCents("ch_demo_1")).isZero();
-
-		this.data.ledger().record(new Refund("rf_demo_1", "ch_demo_1", 1200, java.time.Instant.EPOCH));
-		this.data.ledger().record(new Refund("rf_demo_2", "ch_demo_1", 300, java.time.Instant.EPOCH));
-
-		assertThat(this.data.ledger().refundedAmountCents("ch_demo_1")).isEqualTo(1500);
-		assertThat(this.data.ledger().refundedAmountCents("ch_demo_0")).isZero();
 	}
 
 }

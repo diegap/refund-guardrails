@@ -1,8 +1,9 @@
-package dev.diegap.refundguardrails.assistant;
+package dev.diegap.refundguardrails.ai;
 
 import java.util.List;
 import java.util.Map;
 
+import dev.diegap.refundguardrails.assistant.TurnContext;
 import dev.diegap.refundguardrails.security.InputRedactor;
 import dev.diegap.refundguardrails.security.PanDetector;
 import dev.diegap.refundguardrails.security.PanVault;

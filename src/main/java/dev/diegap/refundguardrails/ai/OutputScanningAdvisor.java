@@ -1,7 +1,9 @@
-package dev.diegap.refundguardrails.assistant;
+package dev.diegap.refundguardrails.ai;
 
 import java.util.List;
 
+import dev.diegap.refundguardrails.assistant.GuardOutcome;
+import dev.diegap.refundguardrails.assistant.TurnContext;
 import dev.diegap.refundguardrails.security.OutputRedactor;
 import dev.diegap.refundguardrails.security.RedactedText;
 import org.springframework.ai.chat.client.ChatClientRequest;
@@ -39,7 +41,7 @@ public class OutputScanningAdvisor implements CallAdvisor {
 
 	@Override
 	public ChatClientResponse adviseCall(ChatClientRequest request, CallAdvisorChain chain) {
-		TurnContext turn = TurnContext.require(request);
+		TurnContext turn = AdvisorContext.require(request);
 		ChatClientResponse response = chain.nextCall(request);
 
 		String text = textOf(response);

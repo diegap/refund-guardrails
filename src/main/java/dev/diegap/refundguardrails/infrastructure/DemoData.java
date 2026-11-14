@@ -1,9 +1,15 @@
-package dev.diegap.refundguardrails.domain;
+package dev.diegap.refundguardrails.infrastructure;
 
 import java.time.Instant;
 import java.util.List;
 import java.util.Optional;
 
+import dev.diegap.refundguardrails.domain.Account;
+import dev.diegap.refundguardrails.domain.AccountLookup;
+import dev.diegap.refundguardrails.domain.AccountRepository;
+import dev.diegap.refundguardrails.domain.Card;
+import dev.diegap.refundguardrails.domain.Charge;
+import dev.diegap.refundguardrails.domain.ChargeRepository;
 import org.springframework.stereotype.Component;
 
 /**
@@ -12,7 +18,7 @@ import org.springframework.stereotype.Component;
  * tests and screenshots are stable.
  */
 @Component
-public class DemoData {
+public class DemoData implements AccountRepository, ChargeRepository, AccountLookup {
 
 	public static final String CURRENCY = "USD";
 
@@ -38,8 +44,6 @@ public class DemoData {
 			new Charge("ch_demo_3", "acct_demo_3", 2500, CURRENCY, "Priority support", true, MARCH),
 			new Charge("ch_demo_final_sale", "acct_demo_3", 9900, CURRENCY, "Final-sale workshop", false, MARCH));
 
-	private final RefundLedger ledger = new RefundLedger();
-
 	public List<Account> accounts() {
 		return this.accounts;
 	}
@@ -48,8 +52,19 @@ public class DemoData {
 		return this.charges;
 	}
 
+	@Override
 	public List<Charge> chargesFor(String accountId) {
 		return this.charges.stream().filter((charge) -> charge.accountId().equals(accountId)).toList();
+	}
+
+	@Override
+	public Optional<Account> accountById(String accountId) {
+		return account(accountId);
+	}
+
+	@Override
+	public Optional<Charge> chargeById(String chargeId) {
+		return charge(chargeId);
 	}
 
 	public Optional<Account> account(String accountId) {
@@ -60,12 +75,9 @@ public class DemoData {
 		return this.charges.stream().filter((charge) -> charge.id().equals(chargeId)).findFirst();
 	}
 
+	@Override
 	public Optional<Account> accountForPan(String pan) {
 		return this.accounts.stream().filter((account) -> account.card().pan().equals(pan)).findFirst();
-	}
-
-	public RefundLedger ledger() {
-		return this.ledger;
 	}
 
 }

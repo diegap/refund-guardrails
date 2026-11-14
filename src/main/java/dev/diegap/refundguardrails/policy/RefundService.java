@@ -6,8 +6,9 @@ import java.util.Optional;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import dev.diegap.refundguardrails.domain.Charge;
-import dev.diegap.refundguardrails.domain.DemoData;
+import dev.diegap.refundguardrails.domain.ChargeRepository;
 import dev.diegap.refundguardrails.domain.Refund;
+import dev.diegap.refundguardrails.domain.RefundLedger;
 
 /**
  * The only component that moves money. It evaluates policy, mints a single-use
@@ -20,16 +21,20 @@ public class RefundService {
 
 	private final AuthorizationTokens tokens;
 
-	private final DemoData data;
+	private final ChargeRepository charges;
+
+	private final RefundLedger ledger;
 
 	private final Clock clock;
 
 	private final AtomicInteger sequence = new AtomicInteger();
 
-	public RefundService(RefundPolicy policy, AuthorizationTokens tokens, DemoData data, Clock clock) {
+	public RefundService(RefundPolicy policy, AuthorizationTokens tokens, ChargeRepository charges, RefundLedger ledger,
+			Clock clock) {
 		this.policy = policy;
 		this.tokens = tokens;
-		this.data = data;
+		this.charges = charges;
+		this.ledger = ledger;
 		this.clock = clock;
 	}
 
@@ -54,7 +59,7 @@ public class RefundService {
 			return RefundOutcome.Denied.of(DenialReason.AUTHORIZATION_INVALID);
 		}
 
-		Optional<Charge> charge = this.data.charge(chargeId);
+		Optional<Charge> charge = this.charges.chargeById(chargeId);
 		if (charge.isEmpty()) {
 			return RefundOutcome.Denied.of(DenialReason.CHARGE_NOT_FOUND);
 		}
@@ -69,7 +74,7 @@ public class RefundService {
 
 		Refund refund = new Refund("rf_demo_" + this.sequence.incrementAndGet(), chargeId, amountCents,
 				Instant.now(this.clock));
-		this.data.ledger().record(refund);
+		this.ledger.record(refund);
 		return new RefundOutcome.Approved(refund.id(), chargeId, amountCents);
 	}
 

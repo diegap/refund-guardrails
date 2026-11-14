@@ -1,4 +1,4 @@
-package dev.diegap.refundguardrails.assistant;
+package dev.diegap.refundguardrails.ai;
 
 import java.util.List;
 
