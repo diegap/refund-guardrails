@@ -23,3 +23,18 @@ jobs:
 
       - name: Build and test
         run: ./gradlew build --no-daemon
+
+      - name: Report test results
+        if: always()
+        run: |
+          shopt -s nullglob
+          files=(build/test-results/test/*.xml)
+          if [ ${#files[@]} -eq 0 ]; then
+            echo "No JUnit XML found: the test task did not run."
+            exit 1
+          fi
+          tests=$(grep -ho 'tests="[0-9]*"' "${files[@]}" | grep -o '[0-9]*' | awk '{s+=$1} END {print s+0}')
+          failures=$(grep -ho 'failures="[0-9]*"' "${files[@]}" | grep -o '[0-9]*' | awk '{s+=$1} END {print s+0}')
+          line="JUnit suites: ${#files[@]}, tests: $tests, failures: $failures"
+          echo "$line"
+          echo "$line" >> "$GITHUB_STEP_SUMMARY"
