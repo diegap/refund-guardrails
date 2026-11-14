@@ -38,11 +38,18 @@ class DemoDataTest {
 				"ch_demo_1", 4200L,
 				"ch_demo_2", 12900L,
 				"ch_demo_over_cap", 50000L,
-				"ch_demo_3", 2500L));
+				"ch_demo_3", 2500L,
+				"ch_demo_final_sale", 9900L));
 		assertThat(this.data.charges()).allSatisfy((charge) -> {
 			assertThat(charge.currency()).isEqualTo("USD");
 			assertThat(this.data.account(charge.accountId())).isPresent();
 		});
+		assertThat(this.data.charge("ch_demo_final_sale")).get()
+			.extracting(Charge::refundable)
+			.isEqualTo(false);
+		assertThat(this.data.charges())
+			.filteredOn((charge) -> !charge.id().equals("ch_demo_final_sale"))
+			.allSatisfy((charge) -> assertThat(charge.refundable()).isTrue());
 	}
 
 	@Test

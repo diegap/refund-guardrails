@@ -31,11 +31,12 @@ public class DemoData {
 					new Card("378282246310005", "0005", "American Express")));
 
 	private final List<Charge> charges = List.of(
-			new Charge("ch_demo_0", "acct_demo_1", 4200, CURRENCY, "Pro plan, annual", JANUARY),
-			new Charge("ch_demo_1", "acct_demo_1", 4200, CURRENCY, "Pro plan, annual (duplicate)", JANUARY),
-			new Charge("ch_demo_2", "acct_demo_2", 12900, CURRENCY, "Team plan, annual", FEBRUARY),
-			new Charge("ch_demo_over_cap", "acct_demo_2", 50000, CURRENCY, "Enterprise onboarding", FEBRUARY),
-			new Charge("ch_demo_3", "acct_demo_3", 2500, CURRENCY, "Priority support", MARCH));
+			new Charge("ch_demo_0", "acct_demo_1", 4200, CURRENCY, "Pro plan, annual", true, JANUARY),
+			new Charge("ch_demo_1", "acct_demo_1", 4200, CURRENCY, "Pro plan, annual (duplicate)", true, JANUARY),
+			new Charge("ch_demo_2", "acct_demo_2", 12900, CURRENCY, "Team plan, annual", true, FEBRUARY),
+			new Charge("ch_demo_over_cap", "acct_demo_2", 50000, CURRENCY, "Enterprise onboarding", true, FEBRUARY),
+			new Charge("ch_demo_3", "acct_demo_3", 2500, CURRENCY, "Priority support", true, MARCH),
+			new Charge("ch_demo_final_sale", "acct_demo_3", 9900, CURRENCY, "Final-sale workshop", false, MARCH));
 
 	private final RefundLedger ledger = new RefundLedger();
 

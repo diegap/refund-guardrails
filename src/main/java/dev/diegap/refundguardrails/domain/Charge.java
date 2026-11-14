@@ -3,7 +3,7 @@ package dev.diegap.refundguardrails.domain;
 import java.time.Instant;
 
 public record Charge(String id, String accountId, long amountCents, String currency, String description,
-		Instant chargedAt) {
+		boolean refundable, Instant chargedAt) {
 
 	public Charge {
 		if (id == null || id.isBlank()) {
