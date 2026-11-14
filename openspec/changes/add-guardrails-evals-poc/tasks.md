@@ -21,7 +21,7 @@ observability approach. Effort hints are rough.
 - [x] 1.4 Write the README skeleton: one-line thesis, the demo-only/no-real-card-
   data disclaimer, the quickstart command, and empty sections for the remaining
   docs. Verify the quickstart command as written starts the application. (~20m)
-- [ ] 1.5 Add a CI workflow that runs the build and tests on push and pull
+- [x] 1.5 Add a CI workflow that runs the build and tests on push and pull
   request on a public repository, using `actions/setup-java` (Temurin 25) and
   `gradle/actions/setup-gradle` for caching, running `./gradlew build`. Verify
   the workflow is green on the first push and the job log shows the test phase
