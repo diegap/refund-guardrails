@@ -1,0 +1,8 @@
+spring:
+  application:
+    name: refund-guardrails
+  ai:
+    openai:
+      # Scripted-provider mode needs no real credentials. Set OPENAI_API_KEY and a
+      # base URL only when pointing at a real provider (untested in this lab).
+      api-key: ${OPENAI_API_KEY:demo-not-a-real-key}

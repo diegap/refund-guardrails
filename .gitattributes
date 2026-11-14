@@ -1,0 +1,6 @@
+/gradlew text eol=lf
+*.cmd text eol=crlf
+
+*.java text
+*.kts text
+*.yaml text
