@@ -60,6 +60,31 @@ is not served.
 Fixtures cover a duplicate charge, an over-cap refund, a policy-override
 attempt, and an off-topic request.
 
+## Card-number vault
+
+The model never receives a card number. On the way in, `PanDetector` looks for
+12–19 digits that also have a known issuer prefix and pass the Luhn checksum;
+spaces and dashes are treated as separators, so a number that fails any check is
+left alone. Each match is replaced with a stable per-session token such as
+`[[CARD_1]]` before any model-bound content exists. The same card in the same
+session keeps the same token.
+
+Tools resolve a token through `CardDirectory`, which returns only the brand and
+last four digits. There is no lookup path that returns a full number. On the way
+out, model output is scanned again and card numbers and email addresses become
+`[REDACTED_CARD]` / `[REDACTED_EMAIL]`.
+
+The vault is a demo control with deliberate limits:
+
+- It lives in memory and is scoped to one session; a restart forgets every
+  mapping and tokens stop resolving.
+- The seeded domain holds the documented test card numbers in memory so the demo
+  has something to look up. Those are public test numbers only.
+- It is not a secret manager and nothing is persisted, so there is no encryption
+  story to point at. It is not a production control and not PCI-compliant. Do
+  not put real card data in this application.
+
+
 ## Configuration
 
 The default demo needs nothing set. Values are read from environment variables;

@@ -74,28 +74,28 @@ observability approach. Effort hints are rough.
 
 ## 4. Domain model and sensitive-data handling
 
-- [ ] 4.1 Implement the in-memory domain: three accounts seeded with documented
+- [x] 4.1 Implement the in-memory domain: three accounts seeded with documented
   test PANs, a handful of charges, and a refund ledger. Verify a seed test
   asserts the expected accounts, charges, and amounts, and that every PAN used is
   an industry test number. (~30m)
-- [ ] 4.2 Implement card-number detection using length, issuer prefix, and Luhn,
+- [x] 4.2 Implement card-number detection using length, issuer prefix, and Luhn,
   normalizing spaces and dashes. Verify unit tests cover a formatted card number,
   a number that fails Luhn, and an order identifier that must pass through
   unchanged. (~45m)
-- [ ] 4.3 Implement the input advisor that replaces detected numbers with
+- [x] 4.3 Implement the input advisor that replaces detected numbers with
   session-scoped tokens before any model-bound content exists. Verify tests for
   token substitution, token reuse within a session, isolation across sessions,
   and vault loss on restart. (~45m)
 - [ ] 4.4 Restrict card lookups to a last-four projection and ensure tool results
   never carry a full number. Verify a test asserts that no tool result contains
   more than four consecutive digits of any seeded card number. (~30m)
-- [ ] 4.5 Implement output scanning and redaction for card numbers and email
+- [x] 4.5 Implement output scanning and redaction for card numbers and email
   addresses before delivery. Verify tests for a leaking model output and for an
   unchanged clean output. (~30m)
 - [ ] 4.6 Include redaction metadata in each turn result: stage, token, and
   visible last four. Verify the turn endpoint returns it for a turn containing a
   card number. (~20m)
-- [ ] 4.7 Document the vault design and its limitations (in-memory, per session,
+- [x] 4.7 Document the vault design and its limitations (in-memory, per session,
   demo only) in the README. Verify the wording matches the tested behavior and
   makes no PCI-compliance claim. (~15m)
 
