@@ -8,4 +8,4 @@ service decides. Both properties are covered by a deterministic test suite.
 > not PCI-compliant.
 
 **Status:** weekend-scale lab, in progress. The plan lives in `openspec/`.
-Run with `mvn spring-boot:run`; no API key required.
+Run with `./gradlew bootRun`; no API key required.

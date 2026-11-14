@@ -78,7 +78,7 @@ None. This is a greenfield project with no existing specs.
 - Entirely new codebase; no existing behavior or APIs change.
 - Runtime: Java 25, Spring Boot 4.x, Spring AI 2.0.x, Thymeleaf, Actuator,
   Micrometer Tracing / OpenTelemetry.
-- Test and CI: JUnit 5, Maven, GitHub Actions on a public repository.
+- Test and CI: JUnit 5, Gradle, GitHub Actions on a public repository.
 - Local tooling: one OTLP trace viewer installed via Homebrew (no Docker).
 - External dependencies at runtime: none. No API keys, no cloud accounts, no
   containers.

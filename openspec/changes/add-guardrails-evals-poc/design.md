@@ -8,7 +8,8 @@ this design:
 - **Weekend budget** (~12 hours of work), so every decision is judged by
   "what does it buy per hour".
 - **No API key, no cloud account, no Docker** on the development machine. Java
-  25, Maven 3.10, Node 26 are available; there is no container runtime.
+  25, Gradle 9.8 with a committed wrapper, Node 26 are available; there is no
+  container runtime.
 - **Public repository from the first commit**, so fixtures must be obviously
   fake and the README must state limits.
 - Spring AI 2.0.x requires Spring Boot 4.x (Framework 7, Jackson 3).
@@ -19,7 +20,7 @@ this design:
 
 - Demonstrate, in running code, that a probabilistic component can be wrapped by
   deterministic controls that hold even when the model is adversarial.
-- Keep the entire system runnable with a single `mvn spring-boot:run` and zero
+- Keep the entire system runnable with a single `./gradlew bootRun` and zero
   external services.
 - Make the guarantees observable (traces, "what the model saw" panel) and
   testable (evaluation suite) rather than asserted in prose.
@@ -216,7 +217,7 @@ cloned and run by anyone.
         local trace viewer  (later: hosted backend)
 ```
 
-Package sketch (single Maven module):
+Package sketch (single Gradle module):
 
 ```
 dev.<user>.refundguardrails

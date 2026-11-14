@@ -10,10 +10,11 @@ observability approach. Effort hints are rough.
   `.gitignore`), then initialize the local repository on `main` and add the
   `origin` remote. Verify `git remote -v` shows the expected SSH URL and an
   empty first push succeeds. (~15m)
-- [ ] 1.2 Generate the Spring Boot 4 / Spring AI 2.0 Maven project with web,
-  actuator, Thymeleaf, and the OpenAI starter, pinned to the current GA
-  versions. Verify `mvn -q -DskipTests package` succeeds and
-  `mvn spring-boot:run` starts and serves a placeholder page. (~30m)
+- [ ] 1.2 Generate the Spring Boot 4 / Spring AI 2.0 Gradle project (Kotlin DSL)
+  with web, actuator, Thymeleaf, and the OpenAI starter, pinned to the current
+  GA versions, and commit the wrapper (`gradlew`, `gradlew.bat`,
+  `gradle/wrapper/`). Verify `./gradlew build` succeeds and
+  `./gradlew bootRun` starts and serves a placeholder page. (~30m)
 - [ ] 1.3 Add repository hygiene: `.gitignore` for build output, IDE files,
   `.env`, and the local trace database; MIT `LICENSE`; `.env.example` with
   placeholders only. Verify `git status` stays clean after a build and no
@@ -22,8 +23,10 @@ observability approach. Effort hints are rough.
   data disclaimer, the quickstart command, and empty sections for the remaining
   docs. Verify the quickstart command as written starts the application. (~20m)
 - [ ] 1.5 Add a CI workflow that runs the build and tests on push and pull
-  request on a public repository. Verify the workflow is green on the first
-  push and the job log shows the test phase executing. (~15m)
+  request on a public repository, using `actions/setup-java` (Temurin 25) and
+  `gradle/actions/setup-gradle` for caching, running `./gradlew build`. Verify
+  the workflow is green on the first push and the job log shows the test phase
+  executing. (~15m)
 
 ## 2. Risk-retiring spikes
 
