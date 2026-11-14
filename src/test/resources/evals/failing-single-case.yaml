@@ -1,0 +1,13 @@
+suite: cli-fail
+scope: >-
+  Validates guardrails, policy behavior, and plumbing against scripted responses.
+  It does not measure model quality.
+cases:
+  - name: one-fail
+    message: >-
+      I was charged twice for my Pro plan. Please refund the duplicate.
+      My card is 4242 4242 4242 4242.
+    scenario: duplicate-charge
+    expect:
+      contains: ["this string will never appear"]
+      ledgerUnchanged: true

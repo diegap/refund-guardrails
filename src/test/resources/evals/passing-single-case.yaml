@@ -1,0 +1,13 @@
+suite: cli-pass
+scope: >-
+  Validates guardrails, policy behavior, and plumbing against scripted responses.
+  It does not measure model quality.
+cases:
+  - name: one-pass
+    message: >-
+      I was charged twice for my Pro plan. Please refund the duplicate.
+      My card is 4242 4242 4242 4242.
+    scenario: duplicate-charge
+    expect:
+      contains: ["issued a refund"]
+      ledgerRefunds: 1
