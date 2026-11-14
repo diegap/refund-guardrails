@@ -101,25 +101,25 @@ observability approach. Effort hints are rough.
 
 ## 5. Refund authorization
 
-- [ ] 5.1 Implement policy evaluation: positive amount, not exceeding the charge,
+- [x] 5.1 Implement policy evaluation: positive amount, not exceeding the charge,
   charge belongs to the account and is refundable, and amount within the
   configured auto-approval cap. Verify one unit test per rule, including a
   denied case and an allowed case. (~45m)
-- [ ] 5.2 Implement authorization tokens: minted only on policy success, bound
+- [x] 5.2 Implement authorization tokens: minted only on policy success, bound
   to charge, amount, and session, short-lived and single-use. Verify tests for
   successful minting, reuse rejection, expiry rejection, and amount mismatch.
   (~45m)
-- [ ] 5.3 Enforce the token in the refund tool and apply the ledger change only
+- [x] 5.3 Enforce the token in the refund tool and apply the ledger change only
   on success. Verify a happy-path test records exactly one refund, and rejection
   tests leave the ledger unchanged for missing, forged, mismatched, and expired
   tokens. (~45m)
-- [ ] 5.4 Implement the denial path: reason category without sensitive detail,
+- [x] 5.4 Implement the denial path: reason category without sensitive detail,
   no token, and an escalation offer. Verify a test asserts the refusal text,
   absence of a token, and presence of the escalation option. (~20m)
 - [ ] 5.5 Add the defense-in-depth test: an adversarial turn that bypasses the
   injection heuristic still cannot produce an over-cap refund. Verify the test
   fails if token validation is removed. (~30m)
-- [ ] 5.6 Implement double-refund prevention for fully refunded charges. Verify a
+- [x] 5.6 Implement double-refund prevention for fully refunded charges. Verify a
   test rejects a second refund on the same charge. (~20m)
 - [ ] 5.7 Document the "model proposes, policy authorizes" flow with a diagram in
   the README. Verify the diagram matches the implemented tool and token flow.
