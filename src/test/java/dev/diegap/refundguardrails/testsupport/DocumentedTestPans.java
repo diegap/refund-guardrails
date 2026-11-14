@@ -15,7 +15,9 @@ public final class DocumentedTestPans {
 			// Mastercard test number, docs.stripe.com/testing
 			"5555555555554444",
 			// American Express test number, docs.stripe.com/testing
-			"378282246310005");
+			"378282246310005",
+			// Visa's classic test number, also used as an unknown-card fixture
+			"4111111111111111");
 
 	private DocumentedTestPans() {
 	}

@@ -22,7 +22,6 @@ import org.springframework.ai.chat.observation.ChatModelObservationContext;
 import org.springframework.ai.chat.observation.ChatModelObservationDocumentation.HighCardinalityKeyNames;
 import org.springframework.ai.chat.observation.ChatModelObservationDocumentation.LowCardinalityKeyNames;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.micrometer.observation.autoconfigure.ObservationRegistryCustomizer;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.context.TestConfiguration;
 import org.springframework.context.annotation.Bean;
@@ -133,6 +132,21 @@ class TelemetryObservationTest {
 	}
 
 	@Test
+	void threeTurnsInOneSessionShareTheSessionIdentifier() {
+		turn("telemetry-multi", "Can you check my account? My card is " + VISA_FORMATTED + ".", null);
+		turn("telemetry-multi", "Can you check my account? My card is " + VISA_FORMATTED + ".", null);
+		turn("telemetry-multi", "Can you check my account? My card is " + VISA_FORMATTED + ".", null);
+
+		List<Observation.Context> turnSpans = this.handler.contexts()
+			.stream()
+			.filter((context) -> "refund.turn".equals(context.getName()))
+			.toList();
+		assertThat(turnSpans).hasSize(3);
+		assertThat(turnSpans).allSatisfy(
+				(context) -> assertThat(key(context, "session.id")).isEqualTo("telemetry-multi"));
+	}
+
+	@Test
 	void observationsCarryNoPanOrCredential() {
 		turn("telemetry-hygiene",
 				"I was charged twice for my Pro plan. Please refund the duplicate. My card is " + VISA_FORMATTED
@@ -218,12 +232,6 @@ class TelemetryObservationTest {
 		@Bean
 		RecordingObservationHandler recordingObservationHandler() {
 			return new RecordingObservationHandler();
-		}
-
-		@Bean
-		ObservationRegistryCustomizer<ObservationRegistry> recordingObservationCustomizer(
-				RecordingObservationHandler handler) {
-			return (registry) -> registry.observationConfig().observationHandler(handler);
 		}
 
 	}
