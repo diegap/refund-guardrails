@@ -7,7 +7,8 @@ service decides. Both properties are covered by a deterministic test suite.
 > Demo only. Uses documented test card numbers. Stores no real card data and is
 > not PCI-compliant.
 
-**Status:** weekend-scale lab, in progress. The plan lives in `openspec/`.
+**Status:** weekend-scale lab, complete. The plan and its verification live in
+`openspec/`.
 
 ![The demo page: a duplicate-charge refund with the raw input and the tokenized model-bound content side by side](docs/demo.png)
 
@@ -21,6 +22,54 @@ charge** on the page.
 - Thymeleaf + htmx for the single-page demo
 - OpenTelemetry traces over OTLP, exported to a local viewer
 - JUnit 5 for the deterministic eval suite
+
+## Architecture
+
+```mermaid
+flowchart LR
+  UI["Thymeleaf + htmx<br/>/ and /api/turns"] --> SVC["RefundAssistantService"]
+  SVC --> OBS["refund.turn span"]
+  SVC --> AD["Advisor chain<br/>redaction → injection → scope → output scan"]
+  AD --> LOOP["Tool-calling loop"]
+  LOOP --> ACC["lookup_account"]
+  LOOP --> CHG["lookup_charges"]
+  LOOP --> REF["issue_refund"]
+  LOOP --> ESC["escalate_to_human"]
+  ACC --> VAULT["PanVault + CardDirectory"]
+  CHG --> DATA["DemoData"]
+  REF --> POLICY["RefundService<br/>RefundPolicy + single-use token"]
+  ESC --> QUEUE["EscalationQueue"]
+  AD --> MODEL["ChatClient → OpenAI-compatible provider<br/>scripted in mock, real by config"]
+```
+
+The browser never talks to the model. The model receives only redacted user
+text and safe tool results. A full turn is inspectable in the UI metadata, in
+the JSON reports, and in the trace.
+
+## Design decisions
+
+- **Scripted provider over a mock library.** The app talks HTTP to an in-process
+  OpenAI-compatible endpoint, so the real Spring AI OpenAI client, tool-calling
+  loop, and `gen_ai.*` spans all run. No key or cloud account is needed.
+- **Advisor chain for guardrails.** The order is explicit and testable.
+  Redaction is first so no later advisor or the model can observe a PAN. The
+  tool-calling advisor sits at order 1000, inside the guards, so each guard runs
+  once per turn around the whole tool loop.
+- **Policy-minted tokens, not prompt policy.** The model can request a refund;
+  only `RefundService` can authorize one. The token is random, bound to session,
+  charge, and amount, short-lived, and single-use. The model never sees it.
+- **Session-bound account.** `issue_refund` does not accept an account id from
+  the model. `lookup_account` binds the session, and policy checks the charge
+  against that binding.
+- **Deterministic evals, no LLM-as-judge.** The suite is YAML cases against
+  scripted responses. It validates guardrails, policy, and plumbing; it
+  explicitly does not measure model quality.
+- **Content in traces is opt-in and redacted.** Metadata and token usage are
+  always on; prompt/completion text is off by default and passes through the
+  output redactor when enabled.
+- **In-memory state.** The vault, ledger, session bindings, tokens, and
+  escalation queue live in the process. This keeps the demo to one command and
+  makes eval isolation simple; it is not a persistence or PCI story.
 
 ## Run it
 
@@ -291,6 +340,21 @@ charge, double-refund prevention, a policy-override guard miss contained by
 policy, injection and off-topic refusals, and contained provider, tool, and
 unknown-tool failures.
 
+A run of the golden set looks like this (the full report is in
+`build/evals/report.md`):
+
+```text
+**Totals:** 15 cases, 15 passed, 0 failed.
+
+| Case | Outcome |
+| --- | --- |
+| duplicate-charge-refund | PASSED |
+| over-cap-refund | PASSED |
+| policy-override-guard-miss | PASSED |
+| off-topic-refused | PASSED |
+| double-refund-prevented | PASSED |
+```
+
 CI runs `./gradlew eval` after the build and uploads both reports as the
 `eval-reports` artifact. A failing case fails the job.
 
@@ -318,3 +382,47 @@ To send traces to a hosted backend, set `OTEL_EXPORTER_OTLP_ENDPOINT`. For
 authentication headers, override
 `management.opentelemetry.tracing.export.otlp.headers` in configuration or set
 `MANAGEMENT_OPENTELEMETRY_TRACING_EXPORT_OTLP_HEADERS_<NAME>`.
+
+## Limitations
+
+- **The real-provider path is untested.** It needs a key, network access, and
+  provider spend. The switch keys are documented and wired, but this lab has no
+  key and does not exercise an external provider.
+- **State is in memory and single-node.** A restart forgets the vault, ledger,
+  session bindings, tokens, and escalations. There is no database, clustering,
+  or durable audit trail.
+- **It is not PCI-compliant and not a secret manager.** The demo holds
+  documented test card numbers in memory. Do not put real card data in it.
+- **The injection and scope guards are heuristics.** The injection guard
+  deliberately misses the policy-override wording; policy and the token are the
+  authority. The scope guard is a keyword filter, not a classifier.
+- **The demo endpoints have no authentication.** Anyone who can reach the app
+  can start a session and run a scenario. It is meant for local use.
+- **The eval suite does not measure model quality.** It runs scripted responses;
+  every report says so.
+- **The UI is a demo.** It is not accessibility-audited, localized, or hardened
+  for hostile input, and it does not persist conversations.
+
+## Verification
+
+The final state was checked from a clean clone with an empty environment and no
+outbound network (loopback only):
+
+```bash
+./gradlew build --offline          # full JUnit suite: 130 tests, 0 failures
+./gradlew eval --offline           # 15/15 evaluation cases passed
+```
+
+The offline sandbox is macOS-specific. `scripts/offline.sb` denies outbound
+network but permits loopback:
+
+```bash
+sandbox-exec -f scripts/offline.sb ./gradlew cleanTest test --offline
+sandbox-exec -f scripts/offline.sb ./gradlew eval --offline
+```
+
+A duplicate-charge turn was also inspected in the local viewer. It produced a
+`refund.turn` root span with 18 spans beneath it: the four guard/advisor spans,
+three `execute_tool` spans, and four `chat gpt-4o-mini` spans carrying provider,
+model, and token usage. No prompt or completion content attributes were present
+with the default configuration.
