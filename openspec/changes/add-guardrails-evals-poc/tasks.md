@@ -48,26 +48,26 @@ observability approach. Effort hints are rough.
 
 ## 3. Scripted LLM provider
 
-- [ ] 3.1 Implement the non-streaming chat-completions endpoint, registered only
+- [x] 3.1 Implement the non-streaming chat-completions endpoint, registered only
   under the mock profile, returning a valid payload with choices, message, and
   usage; reject `stream: true` with a documented error. Verify tests cover the
   well-formed response, the streaming rejection, and the endpoint's absence when
   the profile is inactive. (~45m)
-- [ ] 3.2 Implement fixture selection by explicit scenario marker with a default
+- [x] 3.2 Implement fixture selection by explicit scenario marker with a default
   fallback, and record the selection per request. Verify tests show identical
   responses for repeated requests, fallback for an unknown marker, and no
   interference between two concurrent sessions. (~45m)
-- [ ] 3.3 Author fixtures for the four scenarios, including at least one scripted
+- [x] 3.3 Author fixtures for the four scenarios, including at least one scripted
   tool call with schema-valid JSON arguments. Verify an integration test drives
   the tool loop to completion and a malformed-arguments fixture fails loudly.
   (~60m)
-- [ ] 3.4 Capture each received request body in memory, keyed by session, and
+- [x] 3.4 Capture each received request body in memory, keyed by session, and
   expose it for inspection. Verify a test retrieves the captured body, and a
   shutdown test confirms nothing is written to disk or logs. (~30m)
-- [ ] 3.5 Verify offline operation: start with no environment variables and no
+- [x] 3.5 Verify offline operation: start with no environment variables and no
   network access, then complete a chat turn. Verify the test passes with network
   disabled. (~15m)
-- [ ] 3.6 Document the scripted provider and the provider-switch configuration in
+- [x] 3.6 Document the scripted provider and the provider-switch configuration in
   the README, and add `.env.example` with placeholders only, labelling
   real-provider use as untested. Verify the documented configuration keys match
   the application config. (~20m)

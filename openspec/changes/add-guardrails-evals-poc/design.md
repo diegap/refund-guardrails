@@ -243,6 +243,25 @@ Verified on 2026-11-14 against Spring Boot 4.1.2, Spring AI 2.0.1 and
 | 2.3 content attributes | Spring AI's `log-prompt` / `log-completion` handlers only write to the application log. A `@Component ObservationFilter` is still required to attach `gen_ai.prompt` and `gen_ai.completion` to the model span; Boot 4 registers filter beans automatically. |
 | 2.4 span hygiene | One turn yields four spans: `spring_ai chat_client` → `tool _calling` → `call` → `chat gpt-4o-mini`. The internal scripted request is suppressed by disabling `http.server.requests` and `okhttp.requests`; the second key is the one that matters, because Spring AI's `SpringAiOpenAiHttpClient` emits an OkHttp observation, not `http.client.requests`. |
 
+### Group 3 verification
+
+- **Memory-only capture (3.4):** `ScriptedCaptureMemoryTest` points
+  `java.io.tmpdir` at a fresh directory, sends a unique marker in the request
+  body, and asserts the marker appears in neither the log events nor any file
+  under that directory. The capture component holds records in memory only.
+- **Offline operation (3.5):** the 13 scripted-provider tests pass under
+  `sandbox-exec` with all outbound network denied and only `localhost` allowed.
+  Gradle also runs `--offline`, so no dependency resolution needs the network.
+  The provider URL is derived from `server.port`, so the test proves the default
+  configuration points at the in-process server rather than an external host.
+- **Trace export is best-effort:** with the OTLP endpoint pointed at a closed
+  port (`http://localhost:9/v1/traces`), a chat turn still completes and the
+  test passes; export failures are logged asynchronously, not surfaced to the
+  caller.
+- **Real provider untested:** the switch keys are documented and wired, but the
+  lab has no key and does not exercise an external provider.
+
+
 ## Risks / Trade-offs
 
 - **Self-hosted fake endpoint could loop or shadow real config.** → bind the fake
