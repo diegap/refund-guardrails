@@ -34,19 +34,19 @@ public class ScriptedFixtureCatalog {
 		this.fixtures = Map.copyOf(byName);
 	}
 
-	public Selection select(String requestedScenario, boolean afterToolCall) {
+	public Selection select(String requestedScenario, int toolMessageCount) {
 		String requested = requestedScenario == null || requestedScenario.isBlank() ? DEFAULT_SCENARIO : requestedScenario;
 		boolean fallback = !this.fixtures.containsKey(requested);
 		ScriptedFixture fixture = fallback ? this.fixtures.get(DEFAULT_SCENARIO) : this.fixtures.get(requested);
-		ScriptedResponse response = afterToolCall && fixture.followUp() != null ? fixture.followUp() : fixture.initial();
-		return new Selection(fixture.name(), response, fallback);
+		return new Selection(fixture.name(), fixture.step(toolMessageCount), fallback, fixture.failure());
 	}
 
 	public Map<String, ScriptedFixture> fixtures() {
 		return this.fixtures;
 	}
 
-	public record Selection(String fixtureName, ScriptedResponse response, boolean fallback) {
+	public record Selection(String fixtureName, ScriptedResponse response, boolean fallback,
+			ScriptedFailure failure) {
 	}
 
 }

@@ -71,11 +71,18 @@ class ScriptedChatCompletionsController {
 		List<JsonNode> messages = messages(request);
 		String sessionId = marker(messages, SESSION_MARKER).orElse(DEFAULT_SESSION);
 		String requestedScenario = marker(messages, SCENARIO_MARKER).orElse(null);
-		boolean afterToolCall = messages.stream().anyMatch((message) -> "tool".equals(text(message, "role")));
+		int toolMessageCount = (int) messages.stream()
+			.filter((message) -> "tool".equals(text(message, "role")))
+			.count();
 
-		Selection selection = this.catalog.select(requestedScenario, afterToolCall);
+		Selection selection = this.catalog.select(requestedScenario, toolMessageCount);
 		this.capture.record(new ScriptedRequestRecord(sessionId, requestedScenario, selection.fixtureName(),
-				selection.fallback(), afterToolCall, rawBody, Instant.now()));
+				selection.fallback(), toolMessageCount, rawBody, Instant.now()));
+
+		if (selection.failure() != null) {
+			return ResponseEntity.status(selection.failure().status())
+				.body(error(selection.failure().message(), "provider_error", selection.failure().code()));
+		}
 
 		validateToolArguments(selection);
 		return ResponseEntity.ok(payload(request, selection));

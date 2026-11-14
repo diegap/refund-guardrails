@@ -30,6 +30,10 @@ public class ScriptedRequestCapture {
 		return Optional.ofNullable(this.lastBySession.get(sessionId));
 	}
 
+	public List<ScriptedRequestRecord> forSession(String sessionId) {
+		return this.history.stream().filter((request) -> request.sessionId().equals(sessionId)).toList();
+	}
+
 	public List<ScriptedRequestRecord> history() {
 		return List.copyOf(this.history);
 	}
