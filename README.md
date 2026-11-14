@@ -208,6 +208,53 @@ The model-bound user message also carries `[[session:...]]` and
 them; they are deterministic routing hints for the local scripted provider, not
 instructions to a real model.
 
+## Tracing
+
+The app exports OTLP/HTTP traces to a local viewer by default. On macOS:
+
+```bash
+brew install --cask otel-desktop-viewer
+otel-desktop-viewer --open-browser=false   # UI :8000, OTLP/HTTP :4318, gRPC :4317
+```
+
+Start the app, run a turn, then inspect the recorded trace from the shell:
+
+```bash
+otel-desktop-viewer traces
+otel-desktop-viewer trace <trace-id>
+otel-desktop-viewer span <trace-id> <root-span-id>
+```
+
+A turn produces a root `refund.turn` span with `session.id`, `turn.scenario`,
+one `turn.guard.<name>.outcome` attribute per guard (plus a category reason on
+failure), `turn.tools`, `turn.redactions`, and `turn.failure`. Under it are the
+four advisor spans, the `spring_ai chat_client` span, one `execute_tool <name>`
+span per tool, and a `chat <model>` span per model call carrying `gen_ai.system`,
+`gen_ai.request.model`, and `gen_ai.usage.*` token counts. If no viewer is
+listening, export fails asynchronously and the turn still succeeds.
+
+### Prompt and completion content
+
+Content export is **off by default**. To include it, enable the switch:
+
+```bash
+APP_TELEMETRY_CONTENT_ENABLED=true ./gradlew bootRun --args='--spring.profiles.active=mock'
+```
+
+When enabled, both strings pass through the same output redactor before they
+reach a span, so card numbers and email addresses become markers. The assistant
+already sends a tokenized prompt, so the prompt attribute shows `[[CARD_n]]`,
+never a PAN. The telemetry tests record the observation contexts, assert that no
+card number or credential appears in any key value, and include a positive
+control that a deliberately leaked PAN is detected.
+
+### Pointing at another backend
+
+Set `OTEL_EXPORTER_OTLP_ENDPOINT` to any OTLP/HTTP endpoint. For authentication
+headers, override `management.opentelemetry.tracing.export.otlp.headers` in
+configuration or set the corresponding environment variables. The tracing
+configuration is the same for the scripted and real provider.
+
 ## Configuration
 
 The default demo needs nothing set. Values are read from environment variables;

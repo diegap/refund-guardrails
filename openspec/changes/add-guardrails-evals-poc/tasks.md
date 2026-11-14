@@ -165,19 +165,19 @@ observability approach. Effort hints are rough.
 
 ## 8. Observability
 
-- [ ] 8.1 Configure OpenTelemetry export and ensure each turn emits a root span
+- [x] 8.1 Configure OpenTelemetry export and ensure each turn emits a root span
   with a session identifier plus a model-call child span with provider, model,
   and token usage. Verify by inspecting a turn in the local viewer. (~45m)
-- [ ] 8.2 Record each guardrail decision on the trace with guard name, outcome,
+- [x] 8.2 Record each guardrail decision on the trace with guard name, outcome,
   and reason category. Verify a refused turn's trace identifies the failing
   guard without exposing content. (~30m)
-- [ ] 8.3 Make prompt/completion content attributes opt-in by configuration,
+- [x] 8.3 Make prompt/completion content attributes opt-in by configuration,
   supporting disabled-by-default and redacted-only behavior. Verify tests for
   both modes and that enabled content shows the token, not the card. (~30m)
-- [ ] 8.4 Write the tracing documentation: local viewer setup, export endpoint,
+- [x] 8.4 Write the tracing documentation: local viewer setup, export endpoint,
   and the environment variables for pointing at a different backend later.
   Verify the documented steps work from a clean shell. (~20m)
-- [ ] 8.5 Add a telemetry hygiene test asserting that exported spans carry no
+- [x] 8.5 Add a telemetry hygiene test asserting that exported spans carry no
   credential values and no full card number. Verify the test fails if a PAN is
   placed on a span. (~20m)
 
