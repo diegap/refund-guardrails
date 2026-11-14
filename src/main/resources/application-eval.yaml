@@ -1,0 +1,13 @@
+management:
+  tracing:
+    export:
+      # The evaluation suite is offline; the in-process observation handler still
+      # captures spans for the privacy invariant.
+      enabled: false
+
+logging:
+  level:
+    # The failure cases produce expected provider/tool errors; keep the CLI
+    # output to the suite summary, not a stack trace for each one.
+    org.springframework.ai: ERROR
+    org.springframework.web: ERROR

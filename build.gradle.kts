@@ -36,3 +36,10 @@ dependencies {
 tasks.withType<Test> {
     useJUnitPlatform()
 }
+
+tasks.register<JavaExec>("eval") {
+    group = "verification"
+    description = "Run the deterministic evaluation suite and write build/evals reports."
+    classpath = sourceSets["main"].runtimeClasspath
+    mainClass.set("dev.diegap.refundguardrails.evals.RefundEvalCli")
+}

@@ -14,7 +14,7 @@ import org.springframework.stereotype.Component;
 @Component
 public class TopicScopeGuardAdvisor implements CallAdvisor {
 
-	static final String REFUSAL = "I can only help with accounts, charges, refunds, or escalation to a human agent.";
+	public static final String REFUSAL = "I can only help with accounts, charges, refunds, or escalation to a human agent.";
 
 	private final TopicScope scope;
 

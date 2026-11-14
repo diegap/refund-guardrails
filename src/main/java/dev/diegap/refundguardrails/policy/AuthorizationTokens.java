@@ -74,4 +74,9 @@ public class AuthorizationTokens {
 		return this.grants.size();
 	}
 
+	/** Clears outstanding tokens; used to isolate evaluation cases. */
+	public void clear() {
+		this.grants.clear();
+	}
+
 }

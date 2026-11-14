@@ -20,10 +20,10 @@ import org.springframework.stereotype.Service;
 @Service
 public class RefundAssistantService {
 
-	static final String SAFE_PROVIDER_FAILURE = "The assistant is temporarily unavailable. "
+	public static final String SAFE_PROVIDER_FAILURE = "The assistant is temporarily unavailable. "
 			+ "Please try again or ask for a human agent.";
 
-	static final String SAFE_TOOL_FAILURE = "I couldn't complete that action. "
+	public static final String SAFE_TOOL_FAILURE = "I couldn't complete that action. "
 			+ "Please try again or ask to speak with a human agent.";
 
 	private static final Logger log = LoggerFactory.getLogger(RefundAssistantService.class);

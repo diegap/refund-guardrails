@@ -17,7 +17,7 @@ import org.springframework.stereotype.Component;
 @Component
 public class PromptInjectionGuardAdvisor implements CallAdvisor {
 
-	static final String REFUSAL = "I can't follow instructions that try to change my rules or grant exceptions. "
+	public static final String REFUSAL = "I can't follow instructions that try to change my rules or grant exceptions. "
 			+ "I can help with account, charge, or refund questions, or escalate to a human agent.";
 
 	private final InjectionHeuristic heuristic;
