@@ -207,16 +207,16 @@ observability approach. Effort hints are rough.
 
 ## 10. Integration and release readiness
 
-- [ ] 10.1 Run the full system from a clean clone with an empty environment.
+- [x] 10.1 Run the full system from a clean clone with an empty environment.
   Verify the README quickstart works verbatim and every scenario produces its
   documented outcome. (~30m)
-- [ ] 10.2 Complete the README: architecture diagram, design decisions, the
+- [x] 10.2 Complete the README: architecture diagram, design decisions, the
   evaluation report excerpt, explicit limitations, and the untested-provider
   statement. Verify every claim is backed by a test or an observed run. (~45m)
-- [ ] 10.3 Review the public history for leaked data. Verify `git log -p` and a
+- [x] 10.3 Review the public history for leaked data. Verify `git log -p` and a
   tracked-file scan find no credential values and no non-test card numbers.
   (~20m)
-- [ ] 10.4 Confirm the change is ready for review: `openspec validate` passes and
+- [x] 10.4 Confirm the change is ready for review: `openspec validate` passes and
   every spec requirement has a corresponding test or a ticket-style follow-up.
   Verify the validation command's output. (~15m)
 
