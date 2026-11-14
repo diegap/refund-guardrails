@@ -54,7 +54,7 @@ class ScriptedToolLoopTest {
 
 		String reply = this.chatClientBuilder.build()
 			.prompt()
-			.system("[[scenario:duplicate-charge]][[session:tool-loop]]")
+			.system("[[scenario:tool-loop]][[session:tool-loop]]")
 			.user("Please refund my duplicate charge")
 			.tools(lookupCharges)
 			.call()

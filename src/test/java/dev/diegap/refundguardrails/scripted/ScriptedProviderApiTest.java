@@ -92,9 +92,9 @@ class ScriptedProviderApiTest {
 			.path("message")
 			.path("tool_calls")
 			.get(0);
-		assertThat(call.path("function").path("name").asString()).isEqualTo("lookup_charges");
-		assertThat(this.jsonMapper.readTree(call.path("function").path("arguments").asString()).path("accountId").asString())
-			.isEqualTo("acct_demo_1");
+		assertThat(call.path("function").path("name").asString()).isEqualTo("lookup_account");
+		assertThat(this.jsonMapper.readTree(call.path("function").path("arguments").asString()).path("cardToken")
+			.asString()).isEqualTo("[[CARD_1]]");
 	}
 
 	@Test

@@ -56,8 +56,9 @@ class ScriptedMalformedFixtureTest {
 
 		@Bean
 		ScriptedFixture malformedArgumentsFixture() {
-			return ScriptedFixture.withToolCall("malformed-arguments",
-					ScriptedResponse.toolCall("call_bad", "lookup_charges", "{not-json"), "unreachable");
+			return ScriptedFixture.sequence("malformed-arguments",
+					ScriptedResponse.toolCall("call_bad", "lookup_charges", "{not-json"),
+					ScriptedResponse.text("unreachable"));
 		}
 
 	}
