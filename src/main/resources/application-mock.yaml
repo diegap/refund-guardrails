@@ -1,10 +1,13 @@
 spring:
   ai:
     openai:
-      base-url: http://localhost:8080/v1
+      # Default target: the in-process scripted endpoint on this server's port.
+      # Override with SPRING_AI_OPENAI_BASE_URL only when pointing at a real
+      # provider or gateway, and drop the mock profile in that case.
+      base-url: ${SPRING_AI_OPENAI_BASE_URL:http://localhost:${server.port:8080}/v1}
       chat:
         options:
-          model: gpt-4o-mini
+          model: ${SPRING_AI_OPENAI_CHAT_OPTIONS_MODEL:gpt-4o-mini}
 
 management:
   tracing:
@@ -12,11 +15,13 @@ management:
       probability: 1.0
   observations:
     enable:
+      # The scripted endpoint is an internal hop; its server span is noise.
       http.server.requests: false
       http.client.requests: false
+      # Spring AI's OkHttp client emits this name, not http.client.requests.
       okhttp.requests: false
   opentelemetry:
     tracing:
       export:
         otlp:
-          endpoint: http://localhost:4318/v1/traces
+          endpoint: ${OTEL_EXPORTER_OTLP_ENDPOINT:http://localhost:4318/v1/traces}
