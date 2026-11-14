@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<body>
+
+<th:block th:fragment="turn(turn, scenario)">
+	<div id="empty-state" hx-swap-oob="delete"></div>
+	<th:block th:replace="~{fragments/turn :: messages(${turn}, ${scenario})}"></th:block>
+	<div id="inspection" hx-swap-oob="innerHTML">
+		<div th:replace="~{fragments/turn :: inspection(${turn})}"></div>
+	</div>
+</th:block>
+
+<th:block th:fragment="messages(turn, scenario)">
+	<div class="message user">
+		<div class="message-head">
+			<span class="role">You</span>
+			<span class="scenario-tag" th:if="${scenario != null}" th:text="${scenario.label}"></span>
+		</div>
+		<div class="message-body" th:text="${turn.metadata.rawInput}"></div>
+	</div>
+
+	<div class="message assistant">
+		<div class="message-head">
+			<span class="role">Refund assistant</span>
+			<span class="failure-tag" th:if="${turn.metadata.failureCategory.name() != 'NONE'}"
+				  th:text="${turn.metadata.failureCategory}"></span>
+		</div>
+		<div class="message-body" th:text="${turn.reply}"></div>
+	</div>
+</th:block>
+
+<div th:fragment="inspection(turn)" class="inspection-body">
+	<div class="inspection-head">
+		<p class="eyebrow">Inspection</p>
+		<h2>What the model saw</h2>
+		<p>Raw input stays on the server. The model receives the tokenized form.</p>
+	</div>
+
+	<div class="compare">
+		<div class="compare-card raw">
+			<div class="compare-label">Raw input</div>
+			<pre th:text="${turn.metadata.rawInput}"></pre>
+		</div>
+		<div class="compare-card model">
+			<div class="compare-label">Model-bound content</div>
+			<pre th:text="${turn.metadata.modelBoundInput}"></pre>
+		</div>
+	</div>
+
+	<div class="meta-grid">
+		<section>
+			<h3>Guards</h3>
+			<ul class="guard-list">
+				<li th:each="guard : ${turn.metadata.guards}">
+					<span class="status-dot" th:classappend="${guard.outcome.name() == 'PASSED' ? 'pass' : 'fail'}"></span>
+					<span class="guard-name" th:text="${guard.name}"></span>
+					<span class="guard-outcome" th:text="${guard.outcome}"></span>
+				</li>
+			</ul>
+		</section>
+
+		<section>
+			<h3>Tools invoked</h3>
+			<ul class="tool-list" th:if="${!turn.metadata.toolsInvoked.isEmpty()}">
+				<li th:each="tool : ${turn.metadata.toolsInvoked}"><code th:text="${tool}"></code></li>
+			</ul>
+			<p class="muted" th:if="${turn.metadata.toolsInvoked.isEmpty()}">No tool ran.</p>
+		</section>
+	</div>
+
+	<section class="redactions">
+		<h3>Redactions</h3>
+		<table th:if="${!turn.metadata.redactions.isEmpty()}">
+			<thead>
+			<tr>
+				<th>Stage</th>
+				<th>Kind</th>
+				<th>Token</th>
+				<th>Last four</th>
+			</tr>
+			</thead>
+			<tbody>
+			<tr th:each="r : ${turn.metadata.redactions}">
+				<td th:text="${r.stage}"></td>
+				<td th:text="${r.kind}"></td>
+				<td><code th:text="${r.token != null ? r.token : '—'}"></code></td>
+				<td th:text="${r.lastFour != null ? r.lastFour : '—'}"></td>
+			</tr>
+			</tbody>
+		</table>
+		<p class="muted" th:if="${turn.metadata.redactions.isEmpty()}">No redaction was needed.</p>
+	</section>
+
+	<div class="failure-box" th:if="${turn.metadata.failureCategory.name() != 'NONE'}">
+		<span class="failure-label">Failure category</span>
+		<span th:text="${turn.metadata.failureCategory}"></span>
+	</div>
+</div>
+
+</body>
+</html>

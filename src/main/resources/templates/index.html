@@ -1,0 +1,128 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1">
+	<title>refund-guardrails — the model proposes, policy authorizes</title>
+	<link rel="stylesheet" th:href="@{/app.css}">
+	<script th:src="@{/vendor/htmx.min.js}" defer></script>
+</head>
+<body>
+	<div class="page">
+		<header class="site-header">
+			<div class="brand">
+				<span class="live-dot" aria-hidden="true"></span>
+				<span class="brand-name">refund-guardrails</span>
+				<span class="brand-tag">local demo</span>
+			</div>
+			<nav class="header-links">
+				<a href="#how-it-works">How it works</a>
+				<a href="https://github.com/diegap/refund-guardrails">Source</a>
+			</nav>
+		</header>
+
+		<section class="hero">
+			<p class="eyebrow">Spring AI · deterministic evals · OpenTelemetry</p>
+			<h1>An LLM refund agent that <span class="accent">never sees the card number</span>.</h1>
+			<p class="lede">
+				Card numbers are replaced with session tokens before any model-bound content exists.
+				A server-side policy — not the model — decides whether a refund is authorized.
+			</p>
+			<div class="badges">
+				<span class="badge">PAN redaction</span>
+				<span class="badge">Policy-minted tokens</span>
+				<span class="badge">Four safe tools</span>
+				<span class="badge">OTel traces</span>
+			</div>
+		</section>
+
+		<div class="disclaimer">
+			<strong>Demo only.</strong> Uses documented test card numbers. Stores no real card data and is not PCI-compliant.
+		</div>
+
+		<main class="layout">
+			<section class="chat-panel" aria-label="Refund conversation">
+				<div class="panel-head">
+					<div>
+						<h2>Refund conversation</h2>
+						<p>Run a scenario or ask your own question about a charge.</p>
+					</div>
+					<span class="guard-pill">4 input/output guards</span>
+				</div>
+
+				<div id="transcript" class="transcript"
+					 hx-on::after-swap="this.scrollTop = this.scrollHeight">
+					<div id="empty-state" class="empty-state" th:if="${turn == null}">
+						<div class="empty-icon" aria-hidden="true">↳</div>
+						<p>Start with a scenario below. Every turn shows exactly what the model saw.</p>
+					</div>
+					<th:block th:if="${turn != null}">
+						<th:block th:replace="~{fragments/turn :: messages(${turn}, ${scenario})}"></th:block>
+					</th:block>
+				</div>
+
+				<form id="turn-form" class="composer"
+					  hx-post="/demo/turns"
+					  hx-target="#transcript"
+					  hx-swap="beforeend"
+					  hx-disabled-elt="find button"
+					  hx-on::after-request="if (event.detail.successful) this.reset()">
+					<input type="hidden" name="sessionId" th:value="${sessionId}">
+					<input type="hidden" name="scenario" id="scenario" value="">
+					<label class="sr-only" for="message">Message</label>
+					<textarea id="message" name="message" rows="2"
+							  placeholder="Ask about a charge, a refund, or a human agent…"></textarea>
+					<div class="composer-actions">
+						<span class="hint">The raw card number never leaves the server.</span>
+						<button type="submit" class="primary">Send</button>
+					</div>
+
+					<div class="scenario-row">
+						<span class="scenario-label">Run a scenario</span>
+						<button type="button" class="scenario" th:each="s : ${scenarios}"
+								th:data-scenario="${s.id}" th:text="${s.label}" th:title="${s.message}"
+								onclick="document.getElementById('scenario').value=this.dataset.scenario; document.getElementById('turn-form').requestSubmit();"></button>
+					</div>
+				</form>
+			</section>
+
+			<aside id="inspection" class="inspection" aria-label="What the model saw">
+				<div class="inspection-empty" th:if="${turn == null}">
+					<p class="eyebrow">Inspection</p>
+					<h2>What the model saw</h2>
+					<p>Run a turn and this panel will show the raw input next to the redacted content the model received.</p>
+				</div>
+				<th:block th:if="${turn != null}">
+					<th:block th:replace="~{fragments/turn :: inspection(${turn})}"></th:block>
+				</th:block>
+			</aside>
+		</main>
+
+		<section id="how-it-works" class="how-it-works">
+			<h2>Two properties, both tested</h2>
+			<div class="property-grid">
+				<article class="property">
+					<span class="property-number">01</span>
+					<h3>The model never sees a PAN</h3>
+					<p>A Luhn + issuer-prefix detector replaces the number with <code th:text="'[[CARD_n]]'">[[CARD_n]]</code> before the prompt exists. Tools resolve the token to brand and last four only.</p>
+				</article>
+				<article class="property">
+					<span class="property-number">02</span>
+					<h3>The model cannot authorize money</h3>
+					<p>The model can request a refund. A deterministic policy checks ownership, refundable balance, and the auto-approval cap, then mints a single-use token the model never sees.</p>
+				</article>
+				<article class="property">
+					<span class="property-number">03</span>
+					<h3>A guard miss is still safe</h3>
+					<p>The injection heuristic is intentionally imperfect. The policy-override scenario bypasses it and still cannot move money. That is the defense-in-depth point.</p>
+				</article>
+			</div>
+		</section>
+
+		<footer class="site-footer">
+			<span>Java 25 · Spring Boot 4 · Spring AI 2 · Gradle</span>
+			<span>Scripted provider in-process. No API key. No Docker.</span>
+		</footer>
+	</div>
+</body>
+</html>
