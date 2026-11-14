@@ -29,20 +29,20 @@ observability approach. Effort hints are rough.
 
 ## 2. Risk-retiring spikes
 
-- [ ] 2.1 Install a local OTLP trace viewer via Homebrew (no container runtime)
+- [x] 2.1 Install a local OTLP trace viewer via Homebrew (no container runtime)
   and confirm its receiver answers on the documented ports. Verify a test span
   sent with a trivial client appears in the viewer. (~15m)
-- [ ] 2.2 Spike the scripted endpoint: serve a minimal chat-completions response,
+- [x] 2.2 Spike the scripted endpoint: serve a minimal chat-completions response,
   point the provider base URL at it, and complete one turn. Verify the trace
   contains a model-call span with provider and model attributes, proving a
   hand-written mock model would have been the wrong choice. (~45m)
-- [ ] 2.3 Spike prompt/completion content attributes on Spring AI 2.0 using an
+- [x] 2.3 Spike prompt/completion content attributes on Spring AI 2.0 using an
   observation filter. Verify either that redacted content appears on the span or
   record the documented fallback (metadata-only spans) before continuing. (~45m)
-- [ ] 2.4 Spike span hygiene: suppress duplicate HTTP observations and confirm
+- [x] 2.4 Spike span hygiene: suppress duplicate HTTP observations and confirm
   that one turn produces one turn span and one model-call span, with the
   internal scripted request not appearing as a second conversation. (~20m)
-- [ ] 2.5 Record the spike outcomes in the design document's risk section,
+- [x] 2.5 Record the spike outcomes in the design document's risk section,
   including any deviation from the planned approach. Verify the document matches
   what was actually observed. (~15m)
 

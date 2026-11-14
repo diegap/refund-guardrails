@@ -139,9 +139,10 @@ feature: the suite is deterministic and runs offline in CI.
 ### D7: Local OTLP viewer now, hosted backend by configuration
 
 **Chosen:** Spring AI observations export over OTLP to a local single-binary
-viewer (no Docker). Endpoint and headers come from standard OTel environment
-variables, so a hosted backend is an env change. Export failures must not fail
-requests.
+viewer (no Docker), via `spring-boot-starter-opentelemetry` and
+`management.opentelemetry.tracing.export.otlp.*`. Endpoint and headers are
+configuration properties, so a hosted backend is a property or environment
+change. Export failures must not fail requests.
 
 **Alternatives:** defer tracing entirely (loses the "inspectable" property, and
 the trace becomes unverifiable); self-host a full observability stack (needs
@@ -230,18 +231,29 @@ dev.<user>.refundguardrails
   web/           controllers, templates
 ```
 
+## Spike Outcomes
+
+Verified on 2026-11-14 against Spring Boot 4.1.2, Spring AI 2.0.1 and
+`otel-desktop-viewer` 0.7.0:
+
+| Spike | Outcome |
+| --- | --- |
+| 2.1 local viewer | Viewer answers on OTLP/HTTP 4318, gRPC 4317 and UI 8000; an OTLP/JSON span posted with `curl` appears immediately. |
+| 2.2 scripted endpoint | A `/v1/chat/completions` stub driven through the real `OpenAiChatModel` produces `gen_ai.operation.name`, `gen_ai.system`, request/response model and token-usage attributes. Spring AI 2.0 uses the official OpenAI Java SDK, so `base-url` must include `/v1`. |
+| 2.3 content attributes | Spring AI's `log-prompt` / `log-completion` handlers only write to the application log. A `@Component ObservationFilter` is still required to attach `gen_ai.prompt` and `gen_ai.completion` to the model span; Boot 4 registers filter beans automatically. |
+| 2.4 span hygiene | One turn yields four spans: `spring_ai chat_client` → `tool _calling` → `call` → `chat gpt-4o-mini`. The internal scripted request is suppressed by disabling `http.server.requests` and `okhttp.requests`; the second key is the one that matters, because Spring AI's `SpringAiOpenAiHttpClient` emits an OkHttp observation, not `http.client.requests`. |
+
 ## Risks / Trade-offs
 
 - **Self-hosted fake endpoint could loop or shadow real config.** → bind the fake
   to the same port and derive base-url from the runtime port; guard with an
   explicit `mock` profile that must be active for the endpoint to be registered.
 - **Spring AI 2.0 observation API may differ from the published Langfuse guide
-  (written for 1.0.9).** → spike this first; if content attributes cannot be
-  attached, ship spans without prompt/completion content and note the gap. The
-  guardrails, evals and privacy invariant do not depend on it.
-- **Trace noise from the fake provider's own HTTP server span.** → disable
-  HTTP server observations for the internal path or filter by name; verify in the
-  spike.
+  (written for 1.0.9).** → resolved by spike 2.3: the filter still works, with
+  the same attribute names, and is registered as a plain bean.
+- **Trace noise from the fake provider's own HTTP server span.** → resolved by
+  spike 2.4 by disabling `http.server.requests` and `okhttp.requests` in the
+  `mock` profile.
 - **Fixture authoring cost for tool calls.** → cap at three tools and four
   scenarios; if a fixture proves fiddly, script the response as a fixed
   multi-turn sequence rather than trying to be clever.
