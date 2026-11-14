@@ -255,6 +255,45 @@ headers, override `management.opentelemetry.tracing.export.otlp.headers` in
 configuration or set the corresponding environment variables. The tracing
 configuration is the same for the scripted and real provider.
 
+## Evaluation suite
+
+```bash
+./gradlew eval
+```
+
+This starts the app on a free loopback port, runs the 15 declarative cases in
+`src/main/resources/evals/cases.yaml`, and writes `build/evals/report.json` and
+`build/evals/report.md`. The task exits non-zero if any case fails.
+
+Each case is data: a name, message, scenario, and expectations. Adding a case is
+a YAML edit; no Java change. Each case runs with a fresh session, vault, ledger,
+escalation queue, authorization-token store, and telemetry capture, so cases
+cannot observe each other's state.
+
+Assertion types: `guardsFired`, `guardsPassed`, `refusal`, `toolSequence`,
+`contains`, `omits`, `modelBoundContains`, `noPanInModelBound`, `ledgerRefunds`,
+`ledgerUnchanged`, and `failureCategory`.
+
+Every case, whether or not it declares the assertion, is checked by the privacy
+invariant: the model-bound input, the reply, every captured scripted request,
+and every telemetry key value must contain no full card number. A leaking case
+fails with a `privacy` assertion even if its declared assertions pass. The test
+suite includes a positive control that the check detects a PAN placed on an
+observation.
+
+**Scope:** This suite validates guardrails, policy behavior, and plumbing against
+scripted responses. It does not measure model quality. The same wording is
+written into both reports.
+
+The golden set covers the four demo scenarios, card tokenization (spaced,
+dashed, and compact), the over-cap and over-charge denials, a non-refundable
+charge, double-refund prevention, a policy-override guard miss contained by
+policy, injection and off-topic refusals, and contained provider, tool, and
+unknown-tool failures.
+
+CI runs `./gradlew eval` after the build and uploads both reports as the
+`eval-reports` artifact. A failing case fails the job.
+
 ## Configuration
 
 The default demo needs nothing set. Values are read from environment variables;

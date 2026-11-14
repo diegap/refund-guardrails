@@ -183,26 +183,26 @@ observability approach. Effort hints are rough.
 
 ## 9. Evaluation suite
 
-- [ ] 9.1 Define the declarative case format and loader. Verify adding a case to
+- [x] 9.1 Define the declarative case format and loader. Verify adding a case to
   the case file runs it with no code change. (~30m)
-- [ ] 9.2 Implement the runner with fresh session, vault, and ledger state per
+- [x] 9.2 Implement the runner with fresh session, vault, and ledger state per
   case. Verify an isolation test where two sequential cases cannot observe each
   other's state. (~45m)
-- [ ] 9.3 Implement the assertion types: guard fired, refusal, tool sequence,
+- [x] 9.3 Implement the assertion types: guard fired, refusal, tool sequence,
   contains, omits, no PAN in model-bound request, ledger unchanged. Verify each
   assertion has both a passing and a failing test. (~60m)
-- [ ] 9.4 Apply the privacy invariant to every case regardless of declared
+- [x] 9.4 Apply the privacy invariant to every case regardless of declared
   assertions. Verify a deliberately leaking case fails with a privacy violation.
   (~20m)
-- [ ] 9.5 Author the golden set: around twelve cases covering the four scenarios,
+- [x] 9.5 Author the golden set: around twelve cases covering the four scenarios,
   guardrail edges, and authorization edges. Verify all cases pass and none
   depend on wall-clock time or network. (~45m)
-- [ ] 9.6 Emit JSON and Markdown reports with per-case outcomes, totals, and the
+- [x] 9.6 Emit JSON and Markdown reports with per-case outcomes, totals, and the
   suite-scope statement. Verify the report files contain the required fields and
   the scope statement. (~30m)
-- [ ] 9.7 Add a command-line entry point that runs the suite and exits non-zero on
+- [x] 9.7 Add a command-line entry point that runs the suite and exits non-zero on
   failure. Verify exit codes for an all-pass run and a failing case. (~20m)
-- [ ] 9.8 Extend CI to run the suite and publish both reports as artifacts.
+- [x] 9.8 Extend CI to run the suite and publish both reports as artifacts.
   Verify a deliberately failing case fails the job, then revert it. (~20m)
 
 ## 10. Integration and release readiness
