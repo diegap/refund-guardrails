@@ -1,4 +1,4 @@
-package dev.diegap.refundguardrails.infrastructure;
+package dev.diegap.refundguardrails.store;
 
 import java.time.Instant;
 

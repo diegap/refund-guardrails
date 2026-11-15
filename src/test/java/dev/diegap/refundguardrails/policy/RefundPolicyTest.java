@@ -2,10 +2,10 @@ package dev.diegap.refundguardrails.policy;
 
 import java.time.Instant;
 
-import dev.diegap.refundguardrails.infrastructure.DemoData;
+import dev.diegap.refundguardrails.store.DemoData;
 import dev.diegap.refundguardrails.domain.Refund;
 import dev.diegap.refundguardrails.domain.RefundLedger;
-import dev.diegap.refundguardrails.infrastructure.InMemoryRefundLedger;
+import dev.diegap.refundguardrails.store.InMemoryRefundLedger;
 import org.junit.jupiter.api.Test;
 
 import static org.assertj.core.api.Assertions.assertThat;

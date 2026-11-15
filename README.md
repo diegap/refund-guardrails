@@ -75,7 +75,7 @@ flowchart TB
   subgraph adapters["Driven adapters"]
     SPRING["ai.SpringAiAssistantModel<br/>ChatClient + advisors + RefundTools"]
     MICRO["observability.MicrometerTurnTelemetry"]
-    INFRA["infrastructure<br/>in-memory stores"]
+    STORE["store<br/>in-memory stores"]
   end
 
   WEB --> IN
@@ -89,7 +89,7 @@ flowchart TB
   SPRING -.implements.-> OUT
   MICRO -.implements.-> OUT
   SPRING --> PROVIDER["Model provider<br/>scripted in mock, real by config"]
-  INFRA --> POLICY
+  STORE --> POLICY
 ```
 
 | Package | Role | May depend on |
@@ -97,7 +97,7 @@ flowchart TB
 | `domain`, `policy`, `security` | Core rules and types | Nothing framework-specific |
 | `assistant` | Application core | `domain`, `policy`, `security`, its own ports |
 | `ai` | Spring AI driven adapter | `assistant`, Spring AI |
-| `observability`, `infrastructure` | Driven adapters | Core and ports |
+| `observability`, `store` | Driven adapters | Core and ports |
 | `web`, `demo`, `evals` | Driving adapters | `assistant.port.in` and core types |
 
 ## Design decisions
