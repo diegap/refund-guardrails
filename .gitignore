@@ -6,3 +6,6 @@ build/
 .env
 .otel/
 .opencode/
+.DS_Store
+.vscode/
+bin/
